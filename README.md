@@ -21,7 +21,7 @@ Abra o Terminal, e digite os seguintes comandos:
 
 $ cd Desktop/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Mac*]/filmow_to_letterboxd-master")
 
-$ cd filmow_to_letterboxd-master
+$ cd filmow_to_letterboxd-master/Mac
 
 $ bxcode-select --install
 
@@ -46,7 +46,9 @@ Abra o Terminal, e digite os seguintes comandos:
 
 $ cd Downloads/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Linux*]/filmow_to_letterboxd-master")
 
-$ cd filmow_to_letterboxd-master
+$ cd filmow_to_letterboxd-master/**Mac**
+
+*(sim, é o mesmo arquivo pra quem usa Mac)*
 
 $ sudo apt-get update
 
