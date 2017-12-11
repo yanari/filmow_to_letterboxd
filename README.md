@@ -19,7 +19,7 @@ Descompacte o arquivo .zip baixado com o descompactador de sua escolha.
 
 Abra o Terminal, e digite os seguintes comandos:
 
-$ cd Desktop/filmow_to_letterboxd-master (ou cd "Diretório em que são feitos os downloads no seu Mac/filmow_to_letterboxd-master")
+$ cd Desktop/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Mac*]/filmow_to_letterboxd-master")
 
 $ cd filmow_to_letterboxd-master
 
