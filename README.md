@@ -2,6 +2,11 @@
 
 Esse programa vai importar os filmes assistidos/avaliados no Filmow pra um arquivo .csv, pra depois ser importado pelo Letterboxd. c:
 
+#### Requisitos:
+1. Já ter uma conta no Letterboxd feita (mesmo que não tenha nada lá, só é necessário já ter a criado)
+2. Ter uma conta no Filmow
+3. Ter conexão com internet
+
 ![alt text](https://i.imgur.com/k0CHeVU.gif)
 
 ### Para usuários Windows:
@@ -30,7 +35,8 @@ $ brew install python3
 
 ## *Usando o programa*
 
-Digite seu nome de usuário e senha (opcional) do Filmow, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o arquivo de extensão *.csv* criado pelo programa (dentro da mesma pasta onde estava o **film.exe**)e pronto! 
+Digite seu nome de usuário e senha (opcional) do Filmow e espere o programa terminar. 
+Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão *.csv* criado(s) pelo programa (dentro da mesma pasta onde estava o **film.exe**[se tiver dificuldade em achar, o nome do arquivo .csv começa com o seu username])e pronto! 
 Aí é só corrigir se algum filme não foi importado, avaliações erradas, erros, etc.
 
-*Comente algo aqui se tiver alguma sugestão ou manda um email pra mim em yanarimy@gmail.com (:*
+*Comente algo aqui se tiver alguma sugestão, encontrar algum erro ou manda um email em yanarimy@gmail.com (:*
