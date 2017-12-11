@@ -93,25 +93,28 @@ def getDataFromPage(usr, page, driverObj):
     writerCsv(driverObj, title, director, releaseDate, rating)
 
 def writerCsv(driverObj, title, dire, date, rating):
+    letters = string.printable + string.ascii_letters + string.punctuation + string.digits
     parsed = driverObj.parsed
     global filename
     global counter
     if counter < 1900:
         with open(filename, 'a', encoding='UTF-8') as f:
             writer = csv.writer(f)
-            if str(string.printable) in title: # str.printable contains all ascii characters
-                writer.writerow((title, dire, date, rating))
-                print('\"' + title + '\" adicionado.')
-                counter += 1
-            else:
-                try:
+        # try:
+            for letter in title:
+                if letter not in letters: # str.printable contains all ascii characters
                     # title in japanese, gets the pt name
                     title = re.search('<h1 itemprop="name">(.*)</h1>', str(parsed)).group(1)
                     writer.writerow((title, dire, date, rating))
-                    print(title, 'adicionado.')
+                    print('\"' + title + '\" adicionado.')
                     counter += 1
-                except:
-                    print('Nao consegui adicionar o filme', title, 'ao arquivo. ):')
+                else: # title is ascii
+                    writer.writerow((title, dire, date, rating))
+                    print('\"' + title + '\" adicionado.')
+                    counter += 1
+                break
+        # except:
+        #     print('Nao consegui adicionar o filme', title, 'ao arquivo. ):')
     else:
         print('Por voce ter muitos filmes na sua lista, será criado mais de um arquivo .csv')
         print('Mas nao se preocupe, é só importar todos eles no Letterboxd c:')
