@@ -11,7 +11,7 @@ Esse programa vai importar os filmes assistidos/avaliados no Filmow pra um arqui
 
 ### Para usuários Windows:
 
-Descompacte o arquivo .zip, clique em **filmow_to_letterboxd\Windows**, clique com o botão direito em **film.exe** e selecione *Executar como administrador*.
+Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **filmowToLetterboxd.exe** e selecione *Executar como administrador*.
 
 ### Para usuários Mac OS:
 
@@ -27,7 +27,7 @@ $ bxcode-select --install
 
 $ sudo easy_install pip
 
-$ sudo pip install --upgrade pip
+$ sudo pip install -U pip
 
 $ sudo pip robobrowser
 
@@ -35,10 +35,33 @@ $ ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
 
 $ brew install python3
 
+$ python3 filmowToLetterboxd.py
+
+### Para usuários Linux:
+
+#### Ubuntu : 
+Descompacte o arquivo .zip baixado com o descompactador de sua escolha.
+
+Abra o Terminal, e digite os seguintes comandos:
+
+$ cd Downloads/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Linux*]/filmow_to_letterboxd-master")
+
+$ cd filmow_to_letterboxd-master
+
+$ sudo apt-get update
+
+$ sudo apt-get install python3.6
+
+$ sudo pip install -U pip
+
+$ sudo pip install robobrowser
+
+$ python3.6 filmowToLetterboxd.py
+
 ## *Usando o programa*
 
 Digite seu nome de usuário e senha (opcional) do Filmow e espere o programa terminar. 
-Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão *.csv* criado(s) pelo programa (dentro da mesma pasta onde estava o **film.exe**[se tiver dificuldade em achar, o nome do arquivo .csv começa com o seu username])e pronto! 
+Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão *.csv* criado(s) pelo programa (dentro da mesma pasta onde estava o **filmowToLetterboxd.exe**[se tiver dificuldade em achar, o nome do arquivo .csv começa com o seu username])e pronto! 
 Aí é só corrigir se algum filme não foi importado, avaliações erradas, erros, etc.
 
 *Comente algo aqui se tiver alguma sugestão, encontrar algum erro ou manda um email em yanarimy@gmail.com (:*
