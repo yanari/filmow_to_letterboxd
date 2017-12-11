@@ -29,6 +29,8 @@ $ sudo easy_install pip
 
 $ sudo pip install --upgrade pip
 
+$ sudo pip robobrowser
+
 $ ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
 
 $ brew install python3
