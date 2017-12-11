@@ -2,7 +2,7 @@
 
 Esse programa vai importar os filmes assistidos/avaliados no Filmow pra um arquivo .csv, pra depois ser importado pelo Letterboxd. c:
 
-# Para usuários Windows:
+### Para usuários Windows:
 
 ![alt text](https://i.imgur.com/k0CHeVU.gif)
 
