@@ -11,7 +11,7 @@ Esse programa vai importar os filmes assistidos/avaliados no Filmow pra um arqui
 
 ### Para usuários Windows:
 
-Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\filmowToLetterboxd**, clique com o botão direito em **\_\_init.bat\_\_** e selecione *Executar como administrador*.
+Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **\_\_init.bat\_\_** e selecione *Executar como administrador*.
 
 ### Para usuários Mac OS:
 
