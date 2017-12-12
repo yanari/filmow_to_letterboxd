@@ -11,7 +11,7 @@ Esse programa vai importar os filmes assistidos/avaliados no Filmow pra um arqui
 
 ### Para usuários Windows:
 
-Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **filmowToLetterboxd.exe** e selecione *Executar como administrador*.
+Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **\_\_init.bat\_\_** e selecione *Executar como administrador*.
 
 ### Para usuários Mac OS:
 
@@ -21,7 +21,7 @@ Abra o Terminal, e digite os seguintes comandos:
 
 $ cd Desktop/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Mac*]/filmow_to_letterboxd-master")
 
-$ cd filmow_to_letterboxd-master/Mac
+$ cd filmow_to_letterboxd-master/Mac e Linux
 
 $ bxcode-select --install
 
@@ -46,9 +46,7 @@ Abra o Terminal, e digite os seguintes comandos:
 
 $ cd Downloads/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Linux*]/filmow_to_letterboxd-master")
 
-$ cd filmow_to_letterboxd-master/**Mac**
-
-*(sim, é o mesmo arquivo pra quem usa Mac)*
+$ cd filmow_to_letterboxd-master/**Mac e Linux**
 
 $ sudo apt-get update
 
@@ -63,7 +61,8 @@ $ python3.6 filmowToLetterboxd.py
 ## *Usando o programa*
 
 Digite seu nome de usuário e senha (opcional) do Filmow e espere o programa terminar. 
-Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão *.csv* criado(s) pelo programa (dentro da mesma pasta onde estava o **filmowToLetterboxd.exe**[se tiver dificuldade em achar, o nome do arquivo .csv começa com o seu username])e pronto! 
+Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão *.csv* criado(s) pelo programa
+na nova pasta **ARQUIVOS .CSV**
 Aí é só corrigir se algum filme não foi importado, avaliações erradas, erros, etc.
 
 *Comente algo aqui se tiver alguma sugestão, encontrar algum erro ou manda um email em yanarimy@gmail.com (:*
