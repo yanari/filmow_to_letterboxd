@@ -1,4 +1,4 @@
 cd ..
-filmowToLetterboxd.exe
 @chcp 65001
-
+cls
+filmowToLetterboxd.exe
