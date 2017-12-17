@@ -62,7 +62,7 @@ $ python3.6 filmowToLetterboxd.py
 
 Digite seu nome de usuário e senha (opcional) do Filmow e espere o programa terminar. 
 Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão *.csv* criado(s) pelo programa
-na nova pasta **ARQUIVOS .CSV**
+na nova pasta **ARQUIVOS**
 Aí é só corrigir se algum filme não foi importado, avaliações erradas, erros, etc.
 
 *Comente algo aqui se tiver alguma sugestão, encontrar algum erro ou manda um email em yanarimy@gmail.com (:*
