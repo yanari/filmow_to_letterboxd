@@ -1,2 +1,3 @@
 set MYPATH="%~dp0cmder"
-start /d "%MYPATH%" Cmder.exe
+cd "%MYPATH%"
+start /d Cmder.exe
