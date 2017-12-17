@@ -11,17 +11,17 @@ Esse programa vai importar os filmes assistidos/avaliados no Filmow pra um arqui
 
 ### Para usuários Windows:
 
-Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\filmowToLetterboxd**, clique com o botão direito em **\_\_init.bat\_\_** e selecione *Executar como administrador*.
+Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **\_\_init.bat\_\_** e selecione *Executar como administrador*.
 
 ### Para usuários Mac OS:
 
 Descompacte o arquivo .zip baixado com o descompactador de sua escolha.
 
-Abra o Terminal, e digite os seguintes comandos:
+Dentro da pasta descompactada clique com o botão direito em um canto vazio e escolhar Abrir o terminal aqui.
 
-$ cd Desktop/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Mac*]/filmow_to_letterboxd-master")
+Dentro do terminal, digite os seguintes comandos:
 
-$ cd filmow_to_letterboxd-master/Mac e Linux
+$ cd filmow_to_letterboxd-master/Mac-e-Linux
 
 $ bxcode-select --install
 
@@ -42,11 +42,11 @@ $ python3 filmowToLetterboxd.py
 #### Ubuntu : 
 Descompacte o arquivo .zip baixado com o descompactador de sua escolha.
 
-Abra o Terminal, e digite os seguintes comandos:
+Dentro da pasta descompactada clique com o botão direito em um canto vazio e escolhar Abrir o terminal aqui.
 
-$ cd Downloads/filmow_to_letterboxd-master (ou cd "[*Diretório em que são feitos os downloads no seu Linux*]/filmow_to_letterboxd-master")
+Dentro do terminal, digite os seguintes comandos:
 
-$ cd filmow_to_letterboxd-master/**Mac e Linux**
+$ cd filmow_to_letterboxd-master/Mac-e-Linux
 
 $ sudo apt-get update
 
