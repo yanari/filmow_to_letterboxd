@@ -65,4 +65,4 @@ Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) a
 na nova pasta **ARQUIVOS**
 Aí é só corrigir se algum filme não foi importado, avaliações erradas, erros, etc.
 
-*Comente algo aqui se tiver alguma sugestão, encontrar algum erro ou manda um email em yanarimy@gmail.com (:*
+*https://www.instagram.com/rootpath/ https://letterboxd.com/r00t/ https://filmow.com/usuario/shadazz/*
