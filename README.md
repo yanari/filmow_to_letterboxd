@@ -1,11 +1,12 @@
 # Filmow to Letterboxd
 
-Esse programa vai importar os filmes assistidos/avaliados no Filmow pra um arquivo .csv, pra depois ser importado pelo Letterboxd. c:
+Programa pra importar filmes assistidos/avaliados no Filmow pra um arquivo .csv, pra depois ser importado pelo Letterboxd.
 
 #### Requisitos:
 1. Já ter uma conta no Letterboxd feita (mesmo que não tenha nada lá, só é necessário já ter a criado)
 2. Ter uma conta no Filmow
 3. Ter conexão com internet
+### (Se as suas notas não foram importadas, verifique se a sua senha foi inserida corretamente.)
 
 ![alt text](https://i.imgur.com/k0CHeVU.gif)
 
