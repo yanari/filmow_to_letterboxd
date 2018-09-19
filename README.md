@@ -14,56 +14,25 @@ Programa pra importar filmes assistidos/avaliados no Filmow pra um arquivo .csv,
 
 Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **\_\_init\_\_.bat** e selecione *Executar como administrador*.
 
-### Para usuários Mac OS:
+### Para usuários Mac OS e Linux:
 
 Descompacte o arquivo .zip baixado com o descompactador de sua escolha.
 
-Dentro da pasta descompactada clique com o botão direito em um canto vazio e escolhar Abrir o terminal aqui.
+Clique com o botão direito na pasta do seu sistema operacional e escolha *Abrir o terminal aqui*.
 
-Dentro do terminal, digite os seguintes comandos:
+Dentro do terminal digite os seguintes comandos:
 
-$ cd filmow_to_letterboxd-master/Mac-e-Linux
+chmod +x \_\_init\_\_.sh
 
-$ bxcode-select --install
-
-$ sudo easy_install pip
-
-$ sudo pip install -U pip
-
-$ sudo pip robobrowser
-
-$ ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
-
-$ brew install python3
-
-$ python3 filmowToLetterboxd.py
-
-### Para usuários Linux:
-
-#### Ubuntu : 
-Descompacte o arquivo .zip baixado com o descompactador de sua escolha.
-
-Dentro da pasta descompactada clique com o botão direito em um canto vazio e escolhar Abrir o terminal aqui.
-
-Dentro do terminal, digite os seguintes comandos:
-
-$ cd filmow_to_letterboxd-master/Mac-e-Linux
-
-$ sudo apt-get update
-
-$ sudo apt-get install python3.6
-
-$ sudo pip install -U pip
-
-$ sudo pip install robobrowser
-
-$ python3.6 filmowToLetterboxd.py
+./\_\_init\_\_.sh
 
 ## *Usando o programa*
 
-Digite seu nome de usuário e senha (opcional) do Filmow e espere o programa terminar. 
-Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão *.csv* criado(s) pelo programa
+- Digite seu nome de usuário e *senha* do Filmow e espere o programa terminar. 
+- Vá para https://letterboxd.com/import/, **SELECT A FILE**, selecione o(s) arquivo(s) de extensão **.csv** criado(s) pelo programa
 na nova pasta **ARQUIVOS**
-Aí é só corrigir se algum filme não foi importado, avaliações erradas, erros, etc.
+- Corrigir caso algum filme não tiver sido importado, avaliações erradas, erros, etc.
+
+*\*senha é opcional porém necessária caso você queira importar suas avaliações*
 
 [Instagram](https://www.instagram.com/rootpath/) | [Letterboxd](https://letterboxd.com/r00t/) | [Filmow](https://filmow.com/usuario/shadazz/)
