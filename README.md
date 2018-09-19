@@ -12,7 +12,7 @@ Programa pra importar filmes assistidos/avaliados no Filmow pra um arquivo .csv,
 
 ### Para usuários Windows:
 
-Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **\_\_init.bat\_\_** e selecione *Executar como administrador*.
+Descompacte o arquivo .zip, vá para **filmow_to_letterboxd\Windows**, clique com o botão direito em **\_\_init\_\_.bat** e selecione *Executar como administrador*.
 
 ### Para usuários Mac OS:
 
@@ -66,4 +66,4 @@ Depois, vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) a
 na nova pasta **ARQUIVOS**
 Aí é só corrigir se algum filme não foi importado, avaliações erradas, erros, etc.
 
-*https://www.instagram.com/rootpath/ https://letterboxd.com/r00t/ https://filmow.com/usuario/shadazz/*
+[Instagram](https://www.instagram.com/rootpath/) | [Letterboxd](https://letterboxd.com/r00t/) | [Filmow](https://filmow.com/usuario/shadazz/)
