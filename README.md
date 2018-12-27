@@ -35,4 +35,8 @@ na nova pasta **ARQUIVOS**
 
 *\*senha é opcional porém necessária caso você queira importar suas avaliações*
 
+### Se quiser dar uma ajudinha ;)
+<a href="https://www.buymeacoffee.com/4dfvYCy" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+
+### Redes sociais
 [Instagram](https://www.instagram.com/rootpath/) | [Letterboxd](https://letterboxd.com/r00t/) | [Filmow](https://filmow.com/usuario/shadazz/)
