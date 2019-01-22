@@ -15,7 +15,6 @@ class Parser():
     self.total_files = 1
     self.user = user
 
-
     self.create_csv(self.total_files)
     self.parse(self.user)
 
@@ -86,7 +85,7 @@ class Parser():
     try:
       movie['year'] = soup.find('small', {'class': 'release'}).get_text()
     except AttributeError:
-      movie['year'] = ' '
+      movie['year'] = ''
 
     print(movie['title'] + ' adicionado.')
     self.write_to_csv(movie)

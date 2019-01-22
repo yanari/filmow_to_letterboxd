@@ -1,7 +1,7 @@
 import wx
 from filmow_to_letterboxd import Parser
 
-class WindowClass(wx.Frame):
+class Window(wx.Frame):
   def __init__(self, *args, **kwargs):
     super(WindowClass, self).__init__(*args, **kwargs)
 
@@ -10,22 +10,11 @@ class WindowClass(wx.Frame):
   def basicGUI(self):
     panel = wx.Panel(self)
 
-    menu_bar = wx.MenuBar()
+    label = wx.StaticText(panel, -1, 'Username no Filmow:', pos=(25, 54))
 
-    file_button = wx.Menu()
-    edit_button = wx.Menu()
+    self.username = wx.TextCtrl(panel,  size=(200, 25), pos=(150, 50))
 
-    exit_item = file_button.Append(wx.ID_EXIT, 'Exit')
-
-    menu_bar.Append(file_button, 'File')
-    menu_bar.Append(edit_button, 'Edit')
-
-    self.text = wx.TextCtrl(panel,  size=(200, 25), pos=(50, 50))
-
-    submit_button = wx.Button(panel, wx.ID_SAVE, 'Submit', pos=(260, 50))
-
-    self.SetMenuBar(menu_bar)
-    self.Bind(wx.EVT_MENU, self.Quit, exit_item)
+    submit_button = wx.Button(panel, wx.ID_SAVE, 'Submit', pos=(360, 50))
 
     self.Bind(wx.EVT_BUTTON, self.Submit, submit_button)
     
@@ -37,9 +26,8 @@ class WindowClass(wx.Frame):
     self.Close()
 
   def Submit(self, e):
-    print(self.text.GetValue())
-    Parser(self.text.GetValue())
+    Parser(self.username.GetValue())
 
 app = wx.App()
-WindowClass(None)
+Window(None, size=(500, 300))
 app.MainLoop()
