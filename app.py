@@ -3,14 +3,14 @@ from filmow_to_letterboxd import Parser
 
 class Window(wx.Frame):
   def __init__(self, *args, **kwargs):
-    super(WindowClass, self).__init__(*args, **kwargs)
+    super(Window, self).__init__(*args, **kwargs)
 
     self.basicGUI()
   
   def basicGUI(self):
     panel = wx.Panel(self)
 
-    label = wx.StaticText(panel, -1, 'Username no Filmow:', pos=(25, 54))
+    wx.StaticText(panel, -1, 'Username no Filmow:', pos=(25, 54))
 
     self.username = wx.TextCtrl(panel,  size=(200, 25), pos=(150, 50))
 
