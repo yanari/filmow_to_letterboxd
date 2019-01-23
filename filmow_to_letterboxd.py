@@ -9,6 +9,7 @@ class Parser():
   def __init__(self, user):
     self.page = 1
     self.total_files = 1
+    self.movies_list = []
     self.soup = BeautifulSoup(features='html.parser')
 
     self.movies_parsed = 0
@@ -25,9 +26,12 @@ class Parser():
 
     soup = BeautifulSoup(source_code, 'html.parser')
 
-    tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
-    match = re.search(r'pagina=(\d*)', str(tag)).group(1)
-    return int(match)
+    try:
+      tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
+      match = re.search(r'pagina=(\d*)', str(tag)).group(1)
+      return int(match)
+    except:
+      return 1
 
   def parse(self, user):
     self.page = 1
@@ -87,5 +91,6 @@ class Parser():
     except AttributeError:
       movie['year'] = ''
 
-    print(movie['title'] + ' adicionado.')
     self.write_to_csv(movie)
+    self.movies_list.append(movie['title'])
+    
