@@ -90,7 +90,8 @@ class Frame(wx.Frame):
         Parser(user)
 
         
-      except AttributeError:
+      except Exception:
+        print('erro')
         self.text_control.ChangeValue('Usuário não encontrado. Tem certeza que digitou certo?')
         self.button.Enable()
         return

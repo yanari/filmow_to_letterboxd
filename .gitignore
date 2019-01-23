@@ -2,4 +2,6 @@ Scripts
 tcl
 Lib
 Include
+build
+dist
 __pycache__

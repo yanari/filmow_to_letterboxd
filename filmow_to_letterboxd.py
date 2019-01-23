@@ -20,14 +20,15 @@ class Parser():
     self.parse(self.user)
 
   def get_last_page(self, user):
-    url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/?pagina=2'
+    url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/'
 
     source_code = requests.get(url).text
 
     soup = BeautifulSoup(source_code, 'html.parser')
 
     if soup.find('h1').text == 'Vixi! - Página não encontrada':
-      raise AttributeError
+      print(soup.find('h1'))
+      raise Exception
 
     try:
       tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
