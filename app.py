@@ -14,40 +14,50 @@ class Frame(wx.Frame):
       self,
       pos=(0, 0),
       size=(500,100),
-      style=wx.DEFAULT_FRAME_STYLE
+      style=wx.CLOSE_BOX | wx.CAPTION | wx.MINIMIZE_BOX | wx.SYSTEM_MENU
     )
     self.panel.SetBackgroundColour('#ffffff')
+    self.SetTitle('Filmow to Letterboxd')
+    self.SetMinSize((500, 300))
+    self.SetMaxSize((500, 300))
 
-    wx.StaticText(self.panel, -1, 'Username no Filmow:', pos=(25, 54))
-    self.username = wx.TextCtrl(self.panel,  size=(200, 25), pos=(150, 50))
-    submit_button = wx.Button(self.panel, wx.ID_SAVE, 'Submit', pos=(360, 50))
-
-    self.hyper = hl.HyperLinkCtrl(
+    self.letterboxd_link = hl.HyperLinkCtrl(
       self.panel,
       -1,
       'letterboxd',
       URL='https://letterboxd.com/import/',
       pos=(420,240)
     )
-    self.hyper.SetToolTip(wx.ToolTip('Clica só quando o programa tiver rodado, beleza?'))
+    self.letterboxd_link.SetToolTip(wx.ToolTip('Clica só quando o programa tiver rodado, beleza?'))
+
+    self.coffee_link = hl.HyperLinkCtrl(
+      self.panel,
+      -1,
+      'quer me agradecer?',
+      URL='https://www.buymeacoffee.com/4dfvYCy',
+      pos=(310,240)
+    )
+    self.coffee_link.SetToolTip(wx.ToolTip('Se tiver dado tudo certo cê pode me pagar um cafézinho, que tal?. Não é obrigatório, claro.'))
+
+    wx.StaticText(self.panel, -1, 'Username no Filmow:', pos=(25, 54))
+    self.username = wx.TextCtrl(self.panel,  size=(200, 25), pos=(150, 50))
+    submit_button = wx.Button(self.panel, wx.ID_SAVE, 'Submit', pos=(360, 50))
 
     self.Bind(wx.EVT_BUTTON, self.Submit, submit_button)
 
-    self.SetTitle('Filmow to Letterboxd')
     self.Show(True)
   
   def Quit(self, event):
     self.Close()
 
   def Submit(self, event):
-    button = event.GetEventObject()
-    button.Disable()
+    self.button = event.GetEventObject()
+    self.button.Disable()
 
-    msg = 'Seus filmes estão sendo importados no plano de fundo :)\n\nNão feche a janela e aguarde um momento.'
     self.text_control = wx.TextCtrl(
       self.panel,
       -1,
-      msg,
+      '',
       pos=(50, 120),
       size=(400, 100),
       style=wx.TE_MULTILINE | wx.TE_CENTRE | wx.TE_READONLY 
@@ -57,20 +67,45 @@ class Frame(wx.Frame):
     self.Parse()
   
   def GoToLetterboxd(self, event):
-    webbrowser.open('https://gist.github.com/pavoljuhas/806c559313145a8ac82d80c0d33b2436')
+    webbrowser.open('https://letterboxd.com/import/')
 
+  def BuyMeACoffee(self, event):
+    webbrowser.open('https://www.buymeacoffee.com/4dfvYCy')
     
   @delay(3.0)
   def Parse(self):
-    Parser(self.username.GetValue())
+    user = self.username.GetValue().strip()
+    if len(user) == 0:
+      self.text_control.ChangeValue('O campo não deve ficar em branco, poxa.')
+      self.button.Enable()
+      return
+    else:
+      try:
+        msg = """Seus filmes estão sendo importados no plano de fundo :)\n\n
+          Não feche a janela e aguarde um momento."""
+        
+        self.text_control.ChangeValue(msg)
+        Parser(user)
+
+        
+      except AttributeError:
+        self.text_control.ChangeValue('Usuário não encontrado. Tem certeza que digitou certo?')
+        self.button.Enable()
+        return
+      
+    
     self.ChangeMsg()
     
   
   @delay(1.0)
   def ChangeMsg(self):
-    
+    msg = """
+      Pronto!\n\n Agora clica no link aqui embaixo pra ir pro Letterboxd, 
+      SELECT A FILE e  selecione o(s) arquivo(s) de extensão .csv 
+      (tá tudo aqui nessa mesma pasta) criado(s) pelo programa.
+    """
 
-    self.text_control.ChangeValue('Pronto!\n\n Agora clica no link aqui embaixo pra ir pro letterboxd, SELECT A FILE e selecione o(s) arquivo(s) de extensão .csv (tá tudo aqui nessa mesma pasta) criado(s) pelo programa.')
+    self.text_control.ChangeValue(msg)
     self.Bind(wx.EVT_TEXT_URL, self.GoToLetterboxd, self.text_control)
 
 

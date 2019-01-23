@@ -26,6 +26,9 @@ class Parser():
 
     soup = BeautifulSoup(source_code, 'html.parser')
 
+    if soup.find('h1').text == 'Vixi! - Página não encontrada':
+      raise AttributeError
+
     try:
       tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
       match = re.search(r'pagina=(\d*)', str(tag)).group(1)
