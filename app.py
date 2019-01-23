@@ -10,6 +10,8 @@ class Frame(wx.Frame):
   def __init__(self, *args, **kwargs):
     super(Frame, self).__init__(*args, **kwargs)
 
+    self.SetIcon(wx.Icon('icon.png'))
+
     self.panel = wx.Panel(
       self,
       pos=(0, 0),
