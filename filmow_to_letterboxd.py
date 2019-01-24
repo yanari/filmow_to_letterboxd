@@ -29,7 +29,7 @@ class Frame(wx.Frame):
       URL='https://letterboxd.com/import/',
       pos=(420,240)
     )
-    self.letterboxd_link.SetToolTip(wx.ToolTip('Clica só quando o programa tiver rodado, beleza?'))
+    self.letterboxd_link.SetToolTip(wx.ToolTip('Clica só quando o programa tiver rodado e sua conta no Letterboxd tiver criada, beleza?'))
 
     self.coffee_link = hl.HyperLinkCtrl(
       self.panel,

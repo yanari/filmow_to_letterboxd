@@ -19,20 +19,11 @@ class Parser():
     self.create_csv(self.total_files)
     self.parse(self.user)
 
-  def get_last_page(self, user):
-    url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/'
-
-    source_code = requests.get(url).text
-
-    soup = BeautifulSoup(source_code, 'html.parser')
-
-    try:
-      tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
-      match = re.search(r'pagina=(\d*)', str(tag)).group(1)
-      return int(match)
-    except:
-      return 1
-
+  def create_csv(self, all_movies):
+    with open(str(all_movies) + '.csv', 'w', encoding='UTF-8') as f:
+      writer = csv.writer(f)
+      writer.writerow(('Title', 'Directors', 'Year'))
+  
   def parse(self, user):
     self.page = 1
     last_page = self.get_last_page(user)
@@ -52,25 +43,6 @@ class Parser():
         self.parse_movie('https://filmow.com' + title.get('href'))
         self.movies_parsed += 1
       self.page += 1
-
-  def write_to_csv(self, movie):
-    if self.movies_parsed < 1900:
-      with open(str(self.total_files) + '.csv', 'a', encoding='UTF-8') as f:
-        writer = csv.writer(f)
-        writer.writerow((
-          movie['title'],
-          movie['director'],
-          movie['year']
-        ))
-    else:
-      self.total_files += 1
-      self.create_csv(self.total_files)
-
-
-  def create_csv(self, all_movies):
-    with open(str(all_movies) + '.csv', 'w', encoding='UTF-8') as f:
-      writer = csv.writer(f)
-      writer.writerow(('Title', 'Directors', 'Year'))
 
   def parse_movie(self, url):
     movie = {'title': None, 'director': None, 'year': None}
@@ -97,4 +69,33 @@ class Parser():
 
     self.write_to_csv(movie)
     self.movies_list.append(movie['title'])
+
+  def write_to_csv(self, movie):
+    if self.movies_parsed < 1900:
+      with open(str(self.total_files) + '.csv', 'a', encoding='UTF-8') as f:
+        writer = csv.writer(f)
+        writer.writerow((
+          movie['title'],
+          movie['director'],
+          movie['year']
+        ))
+    else:
+      self.total_files += 1
+      self.create_csv(self.total_files)
+      
+  def get_last_page(self, user):
+    url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/'
+
+    source_code = requests.get(url).text
+
+    soup = BeautifulSoup(source_code, 'html.parser')
+
+    try:
+      tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
+      match = re.search(r'pagina=(\d*)', str(tag)).group(1)
+      return int(match)
+    except:
+      return 1
+
+
     
