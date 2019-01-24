@@ -1,100 +1,114 @@
-import os
-import csv
-import string
-import requests
-import re
-from bs4 import BeautifulSoup
+import wx
+import wx.lib.agw.hyperlink as hl
+import webbrowser
 
-class Parser():
-  def __init__(self, user):
-    self.page = 1
-    self.total_files = 1
-    self.movies_list = []
-    self.soup = BeautifulSoup(features='html.parser')
+from parser_filmow import Parser
+from utils import delay
 
-    self.movies_parsed = 0
-    self.total_files = 1
-    self.user = user
+class Frame(wx.Frame):
+  def __init__(self, *args, **kwargs):
+    super(Frame, self).__init__(*args, **kwargs)
 
-    self.create_csv(self.total_files)
-    self.parse(self.user)
+    self.SetIcon(wx.Icon('assets/icon.png'))
 
-  def get_last_page(self, user):
-    url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/'
+    self.panel = wx.Panel(
+      self,
+      pos=(0, 0),
+      size=(500,100),
+      style=wx.CLOSE_BOX | wx.CAPTION | wx.MINIMIZE_BOX | wx.SYSTEM_MENU
+    )
+    self.panel.SetBackgroundColour('#ffffff')
+    self.SetTitle('Filmow to Letterboxd')
+    self.SetMinSize((500, 300))
+    self.SetMaxSize((500, 300))
 
-    source_code = requests.get(url).text
+    self.letterboxd_link = hl.HyperLinkCtrl(
+      self.panel,
+      -1,
+      'letterboxd',
+      URL='https://letterboxd.com/import/',
+      pos=(420,240)
+    )
+    self.letterboxd_link.SetToolTip(wx.ToolTip('Clica só quando o programa tiver rodado, beleza?'))
 
-    soup = BeautifulSoup(source_code, 'html.parser')
+    self.coffee_link = hl.HyperLinkCtrl(
+      self.panel,
+      -1,
+      'quer me agradecer?',
+      URL='https://www.buymeacoffee.com/4dfvYCy',
+      pos=(310,240)
+    )
+    self.coffee_link.SetToolTip(wx.ToolTip('Se tiver dado tudo certo cê pode me pagar um cafézinho, que tal?. Não é obrigatório, claro.'))
 
-    if soup.find('h1').text == 'Vixi! - Página não encontrada':
-      print(soup.find('h1'))
-      raise Exception
+    wx.StaticText(self.panel, -1, 'Username no Filmow:', pos=(25, 54))
+    self.username = wx.TextCtrl(self.panel,  size=(200, 25), pos=(150, 50))
+    submit_button = wx.Button(self.panel, wx.ID_SAVE, 'Submit', pos=(360, 50))
 
-    try:
-      tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
-      match = re.search(r'pagina=(\d*)', str(tag)).group(1)
-      return int(match)
-    except:
-      return 1
+    self.Bind(wx.EVT_BUTTON, self.Submit, submit_button)
 
-  def parse(self, user):
-    self.page = 1
-    last_page = self.get_last_page(user)
+    self.Show(True)
+  
+  def Quit(self, event):
+    self.Close()
 
-    while self.page <= last_page:
-      url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/?pagina=' + str(self.page)
+  def Submit(self, event):
+    self.button = event.GetEventObject()
+    self.button.Disable()
 
-      source_code = requests.get(url).text
+    self.text_control = wx.TextCtrl(
+      self.panel,
+      -1,
+      '',
+      pos=(50, 120),
+      size=(400, 100),
+      style=wx.TE_MULTILINE | wx.TE_CENTRE | wx.TE_READONLY 
+      | wx.TE_NO_VSCROLL | wx.TE_AUTO_URL | wx.TE_RICH2 | wx.BORDER_NONE
+    )
 
-      soup = BeautifulSoup(source_code, 'html.parser')
+    self.Parse()
+  
+  def GoToLetterboxd(self, event):
+    webbrowser.open('https://letterboxd.com/import/')
 
-      for title in soup.find_all('a', {'class': 'tip-movie'}):
-        self.parse_movie('https://filmow.com' + title.get('href'))
-        self.movies_parsed += 1
-      self.page += 1
-
-  def write_to_csv(self, movie):
-    if self.movies_parsed < 1900:
-      with open(str(self.total_files) + '.csv', 'a', encoding='UTF-8') as f:
-        writer = csv.writer(f)
-        writer.writerow((
-          movie['title'],
-          movie['director'],
-          movie['year']
-        ))
-    else:
-      self.total_files += 1
-      self.create_csv(self.total_files)
-
-
-  def create_csv(self, all_movies):
-    with open(str(all_movies) + '.csv', 'w', encoding='UTF-8') as f:
-      writer = csv.writer(f)
-      writer.writerow(('Title', 'Directors', 'Year'))
-
-  def parse_movie(self, url):
-    movie = {'title': None, 'director': None, 'year': None}
-    source_code = requests.get(url).text
-    soup = BeautifulSoup(source_code, 'html.parser')
-
-    try:
-      movie['title'] = soup.find('h2', {'class': 'movie-original-title'}).get_text().strip()
-    except AttributeError:
-      movie['title'] = soup.find('h1').get_text().strip()
-
-    try:
-      movie['director'] = soup.find('span', {'itemprop': 'director'}).select('strong')[0].get_text()
-    except AttributeError:
-      try:
-        movie['director'] = soup.find('span', {'itemprop': 'directors'}).getText().strip()
-      except AttributeError:
-        movie['director'] = ''
-
-    try:
-      movie['year'] = soup.find('small', {'class': 'release'}).get_text()
-    except AttributeError:
-      movie['year'] = ''
-
-    self.write_to_csv(movie)
-    self.movies_list.append(movie['title'])
+  def BuyMeACoffee(self, event):
+    webbrowser.open('https://www.buymeacoffee.com/4dfvYCy')
     
+  @delay(3.0)
+  def Parse(self):
+    user = self.username.GetValue().strip()
+    if len(user) == 0:
+      self.text_control.ChangeValue('O campo não deve ficar em branco.')
+      self.button.Enable()
+      return
+    else:
+      try:
+        msg = """Seus filmes estão sendo importados no plano de fundo :)\n\n
+          Não feche a janela e aguarde um momento."""
+        
+        self.text_control.ChangeValue(msg)
+        Parser(user)
+
+      except Exception:
+        self.text_control.ChangeValue('Usuário não encontrado. Tem certeza que digitou certo?')
+        self.button.Enable()
+        return
+    
+    self.ChangeMsg()
+    
+  
+  @delay(1.0)
+  def ChangeMsg(self):
+    msg = """Pronto!\n\n Agora clica no link aqui embaixo pra ir pro Letterboxd, 
+      SELECT A FILE e selecione o(s) arquivo(s) de extensão .csv 
+      (tá tudo aqui nessa mesma pasta) criado(s) pelo programa."""
+
+    self.text_control.ChangeValue(msg)
+    self.Bind(wx.EVT_TEXT_URL, self.GoToLetterboxd, self.text_control)
+
+
+
+
+if __name__ == '__main__':
+  app = wx.App()
+  Frame(None, size=(500, 300))
+  app.MainLoop()

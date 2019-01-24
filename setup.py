@@ -1,8 +1,8 @@
-import os
+# import os
 from cx_Freeze import setup, Executable
 
-os.environ['TCL_LIBRARY'] = r'C:\Users\my\AppData\Local\Programs\Python\Python37-32\tcl\tcl8.6'
-os.environ['TK_LIBRARY'] = r'C:\Users\my\AppData\Local\Programs\Python\Python37-32\tcl\tk8.6'
+# os.environ['TCL_LIBRARY'] = r'C:\Users\my\AppData\Local\Programs\Python\Python37-32\tcl\tcl8.6'
+# os.environ['TK_LIBRARY'] = r'C:\Users\my\AppData\Local\Programs\Python\Python37-32\tcl\tk8.6'
 
 setup(
     name = "filmow_to_letterboxd",
