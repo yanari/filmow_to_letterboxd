@@ -8,6 +8,7 @@ from utils import delay
 class Frame(wx.Frame):
   def __init__(self, *args, **kwargs):
     super(Frame, self).__init__(*args, **kwargs)
+    self.is_running = False
 
     self.panel = wx.Panel(
       self,
@@ -33,7 +34,7 @@ class Frame(wx.Frame):
       self.panel,
       -1,
       'quer me agradecer?',
-      URL='https://www.buymeacoffee.com/4dfvYCy',
+      URL='https://www.buymeacoffee.com/yanari',
       pos=(310,240)
     )
     self.coffee_link.SetToolTip(wx.ToolTip('Se tiver dado tudo certo cê pode me pagar um cafézinho, que tal?. Não é obrigatório, claro.'))
@@ -43,11 +44,27 @@ class Frame(wx.Frame):
     submit_button = wx.Button(self.panel, wx.ID_SAVE, 'Submit', pos=(360, 50))
 
     self.Bind(wx.EVT_BUTTON, self.Submit, submit_button)
+    self.Bind(wx.EVT_CLOSE, self.OnClose)
 
     self.Show(True)
   
-  def Quit(self, event):
-    self.Close()
+  def OnClose(self, event):
+    if self.is_running:
+      confirm_exit = wx.MessageDialog(
+        self,
+        'Tem certeza que quer parar o programa?',
+        'Sair',
+        wx.YES_NO | wx.ICON_QUESTION
+      )
+
+      if confirm_exit.ShowModal() == wx.ID_YES:
+        self.Destroy()
+        del self.parser
+      else:
+        confirm_exit.Destroy()
+    else:
+      event.Skip()
+    
 
   def Submit(self, event):
     self.button = event.GetEventObject()
@@ -69,12 +86,13 @@ class Frame(wx.Frame):
     webbrowser.open('https://letterboxd.com/import/')
 
   def BuyMeACoffee(self, event):
-    webbrowser.open('https://www.buymeacoffee.com/4dfvYCy')
+    webbrowser.open('https://www.buymeacoffee.com/yanari')
     
   @delay(3.0)
   def Parse(self):
-    user = self.username.GetValue().strip()
+    user = self.username.GetValue().lower().strip()
     if len(user) == 0:
+      self.is_running = False
       self.text_control.ChangeValue('O campo não deve ficar em branco.')
       self.button.Enable()
       return
@@ -84,11 +102,13 @@ class Frame(wx.Frame):
           Não feche a janela e aguarde um momento."""
         
         self.text_control.ChangeValue(msg)
-        Parser(user)
+        self.is_running = True
+        self.parser = Parser(user)
 
       except Exception:
         self.text_control.ChangeValue('Usuário não encontrado. Tem certeza que digitou certo?')
         self.button.Enable()
+        self.is_running = False
         return
     
     self.ChangeMsg()
@@ -102,8 +122,7 @@ class Frame(wx.Frame):
 
     self.text_control.ChangeValue(msg)
     self.Bind(wx.EVT_TEXT_URL, self.GoToLetterboxd, self.text_control)
-
-
+    self.is_running = False
 
 
 if __name__ == '__main__':

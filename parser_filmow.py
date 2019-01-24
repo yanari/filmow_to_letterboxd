@@ -9,7 +9,6 @@ class Parser():
   def __init__(self, user):
     self.page = 1
     self.total_files = 1
-    self.movies_list = []
     self.soup = BeautifulSoup(features='html.parser')
 
     self.movies_parsed = 0
@@ -36,7 +35,6 @@ class Parser():
       soup = BeautifulSoup(source_code, 'html.parser')
 
       if soup.find('h1').text == 'Vixi! - Página não encontrada':
-        print(soup.find('h1'))
         raise Exception
 
       for title in soup.find_all('a', {'class': 'tip-movie'}):
@@ -68,7 +66,6 @@ class Parser():
       movie['year'] = ''
 
     self.write_to_csv(movie)
-    self.movies_list.append(movie['title'])
 
   def write_to_csv(self, movie):
     if self.movies_parsed < 1900:
@@ -81,6 +78,7 @@ class Parser():
         ))
     else:
       self.total_files += 1
+      self.movies_parsed = 0
       self.create_csv(self.total_files)
       
   def get_last_page(self, user):
