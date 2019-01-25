@@ -70,7 +70,6 @@ class Frame(wx.Frame):
 
   @delay(1.0)
   def Parse(self, MyFrame):
-    print(MyFrame)
     self.user = self.username.GetValue().lower().strip()
     if len(self.user) == 0:
       self.is_running = False

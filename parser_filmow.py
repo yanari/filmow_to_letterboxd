@@ -11,14 +11,15 @@ class Parser():
     self.total_files = 1
     self.soup = BeautifulSoup(features='html.parser')
 
+    self.user = user
     self.movies_parsed = 0
     self.total_files = 1
 
-    self.create_csv(self.total_files)
     self.parse(user)
+    self.create_csv(self.total_files)
 
   def create_csv(self, all_movies):
-    with open(str(all_movies) + '.csv', 'w', encoding='UTF-8') as f:
+    with open(str(all_movies) + self.user + '.csv', 'w', encoding='UTF-8') as f:
       writer = csv.writer(f)
       writer.writerow(('Title', 'Directors', 'Year'))
   
@@ -68,7 +69,7 @@ class Parser():
 
   def write_to_csv(self, movie):
     if self.movies_parsed < 1900:
-      with open(str(self.total_files) + '.csv', 'a', encoding='UTF-8') as f:
+      with open(str(self.total_files) + self.user + '.csv', 'a', encoding='UTF-8') as f:
         writer = csv.writer(f)
         writer.writerow((
           movie['title'],
@@ -94,5 +95,19 @@ class Parser():
     except:
       return 1
 
-
-    
+if __name__ == "__main__":
+  try:
+    username = input('Digite seu nome de usuário do Filmow: ')
+    msg = """
+          Seus filmes estão sendo importados no plano de fundo :)\n
+          Não feche a janela e aguarde um momento.
+          """
+    print(msg)
+    Parser(username.lower().strip())
+  except Exception:
+    print('Usuário {} não encontrado. Tem certeza que digitou certo?'.format(username))
+    username = input('Digite seu nome de usuário do Filmow: ')
+    Parser(username.lower().strip())
+  print('Pronto! Vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão csv criado(s) pelo programa')
+  go_to_letterboxd = input('Aperte enter para ir para o site do Filmow para importar os filmes.')
+  print(go_to_letterboxd)
