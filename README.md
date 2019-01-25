@@ -12,7 +12,7 @@ Programa pra pegar filmes assistidos no Filmow pra serem importados pelo Letterb
 
 1. Digite seu nome de usuário e espere o programa terminar. 
 2. Vá para https://letterboxd.com/import/, **SELECT A FILE**, selecione o(s) arquivo(s) de extensão **.csv** criado(s) pelo programa
-3. Corrigir caso algum filme não tiver sido importado, avaliações erradas, erros, etc.
+3. Corrigir caso algum filme não tiver sido importado, erros, etc.
 
 
 #### Se quiser dar uma ajudinha ;)
