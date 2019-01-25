@@ -7,13 +7,8 @@ Programa pra importar filmes assistidos/avaliados no Filmow pra um arquivo .csv,
 - Ter uma conta no Filmow
 - Ter conexão com internet
 
-#### Para usuários Windows:
-
-- [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/exes/filmow_to_letterboxd.exe)
-
-#### Para usuários Mac e Linux:
-
-- Entre na pasta e execute o arquivo filmow_to_letterboxd.py
+- Windows: [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/exes2/filmow_to_letterboxd.exe)
+- Linux: [Extraia o arquivo .zip e de clique duplo no arquivo parse_filmow.py](https://github.com/myanari/filmow_to_letterboxd/archive/master.zip)
 
 ## Usando o programa
 
@@ -23,7 +18,7 @@ Programa pra importar filmes assistidos/avaliados no Filmow pra um arquivo .csv,
 
 
 #### Se quiser dar uma ajudinha ;)
-<a href="https://www.buymeacoffee.com/4dfvYCy" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+<a href="https://www.buymeacoffee.com/yanari" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
 ### Redes sociais
 [Instagram](https://www.instagram.com/rootpath/), [Letterboxd](https://letterboxd.com/r00t/), [Filmow](https://filmow.com/usuario/shadazz/)
