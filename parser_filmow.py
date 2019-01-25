@@ -6,7 +6,7 @@ import re
 from bs4 import BeautifulSoup
 
 class Parser():
-  def __init__(self, user):
+  def __init__(self, user='', run=True):
     self.page = 1
     self.total_files = 1
     self.soup = BeautifulSoup(features='html.parser')
@@ -14,6 +14,7 @@ class Parser():
     self.movies_parsed = 0
     self.total_files = 1
     self.user = user
+    self.run = run
 
     self.create_csv(self.total_files)
     self.parse(self.user)
@@ -27,7 +28,7 @@ class Parser():
     self.page = 1
     last_page = self.get_last_page(user)
 
-    while self.page <= last_page:
+    while self.page <= last_page and self.run:
       url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/?pagina=' + str(self.page)
 
       source_code = requests.get(url).text
@@ -38,8 +39,9 @@ class Parser():
         raise Exception
 
       for title in soup.find_all('a', {'class': 'tip-movie'}):
-        self.parse_movie('https://filmow.com' + title.get('href'))
-        self.movies_parsed += 1
+        if self.run:
+          self.parse_movie('https://filmow.com' + title.get('href'))
+          self.movies_parsed += 1
       self.page += 1
 
   def parse_movie(self, url):

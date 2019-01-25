@@ -8,6 +8,9 @@ from utils import delay
 class Frame(wx.Frame):
   def __init__(self, *args, **kwargs):
     super(Frame, self).__init__(*args, **kwargs)
+
+    self.MyFrame = self
+
     self.is_running = False
 
     self.panel = wx.Panel(
@@ -47,24 +50,7 @@ class Frame(wx.Frame):
     self.Bind(wx.EVT_CLOSE, self.OnClose)
 
     self.Show(True)
-  
-  def OnClose(self, event):
-    if self.is_running:
-      confirm_exit = wx.MessageDialog(
-        self,
-        'Tem certeza que quer parar o programa?',
-        'Sair',
-        wx.YES_NO | wx.ICON_QUESTION
-      )
 
-      if confirm_exit.ShowModal() == wx.ID_YES:
-        self.Destroy()
-        del self.parser
-      else:
-        confirm_exit.Destroy()
-    else:
-      event.Skip()
-    
 
   def Submit(self, event):
     self.button = event.GetEventObject()
@@ -79,19 +65,14 @@ class Frame(wx.Frame):
       style=wx.TE_MULTILINE | wx.TE_CENTRE | wx.TE_READONLY 
       | wx.TE_NO_VSCROLL | wx.TE_AUTO_URL | wx.TE_RICH2 | wx.BORDER_NONE
     )
+    self.Parse(self.MyFrame)
 
-    self.Parse()
-  
-  def GoToLetterboxd(self, event):
-    webbrowser.open('https://letterboxd.com/import/')
 
-  def BuyMeACoffee(self, event):
-    webbrowser.open('https://www.buymeacoffee.com/yanari')
-    
-  @delay(3.0)
-  def Parse(self):
-    user = self.username.GetValue().lower().strip()
-    if len(user) == 0:
+  @delay(1.0)
+  def Parse(self, MyFrame):
+    print(MyFrame)
+    self.user = self.username.GetValue().lower().strip()
+    if len(self.user) == 0:
       self.is_running = False
       self.text_control.ChangeValue('O campo não deve ficar em branco.')
       self.button.Enable()
@@ -103,10 +84,10 @@ class Frame(wx.Frame):
         
         self.text_control.ChangeValue(msg)
         self.is_running = True
-        self.parser = Parser(user)
+        self.parser = Parser(self.user)
 
       except Exception:
-        self.text_control.ChangeValue('Usuário não encontrado. Tem certeza que digitou certo?')
+        self.text_control.ChangeValue('Usuário {} não encontrado. Tem certeza que digitou certo?'.format(self.user))
         self.button.Enable()
         self.is_running = False
         return
@@ -124,6 +105,32 @@ class Frame(wx.Frame):
     self.Bind(wx.EVT_TEXT_URL, self.GoToLetterboxd, self.text_control)
     self.is_running = False
 
+
+  def GoToLetterboxd(self, event):
+    webbrowser.open('https://letterboxd.com/import/')
+
+
+  def BuyMeACoffee(self, event):
+    webbrowser.open('https://www.buymeacoffee.com/yanari')
+
+
+  def OnClose(self, event):
+    if self.is_running:
+      confirm_exit = wx.MessageDialog(
+        self,
+        'Tem certeza que quer parar o programa?',
+        'Sair',
+        wx.YES_NO | wx.ICON_QUESTION
+      )
+
+      if confirm_exit.ShowModal() == wx.ID_YES:
+        self.Destroy()
+        wx.Window.Destroy(self)
+      else:
+        confirm_exit.Destroy()
+    else:
+      event.Skip()
+    
 
 if __name__ == '__main__':
   app = wx.App()
