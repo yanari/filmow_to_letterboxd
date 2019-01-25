@@ -6,18 +6,16 @@ import re
 from bs4 import BeautifulSoup
 
 class Parser():
-  def __init__(self, user='', run=True):
+  def __init__(self, user):
     self.page = 1
     self.total_files = 1
     self.soup = BeautifulSoup(features='html.parser')
 
     self.movies_parsed = 0
     self.total_files = 1
-    self.user = user
-    self.run = run
 
     self.create_csv(self.total_files)
-    self.parse(self.user)
+    self.parse(user)
 
   def create_csv(self, all_movies):
     with open(str(all_movies) + '.csv', 'w', encoding='UTF-8') as f:
@@ -28,7 +26,7 @@ class Parser():
     self.page = 1
     last_page = self.get_last_page(user)
 
-    while self.page <= last_page and self.run:
+    while self.page <= last_page:
       url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/?pagina=' + str(self.page)
 
       source_code = requests.get(url).text
@@ -39,9 +37,8 @@ class Parser():
         raise Exception
 
       for title in soup.find_all('a', {'class': 'tip-movie'}):
-        if self.run:
-          self.parse_movie('https://filmow.com' + title.get('href'))
-          self.movies_parsed += 1
+        self.parse_movie('https://filmow.com' + title.get('href'))
+        self.movies_parsed += 1
       self.page += 1
 
   def parse_movie(self, url):
