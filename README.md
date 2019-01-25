@@ -7,8 +7,11 @@ Programa pra pegar filmes assistidos no Filmow pra serem importados pelo Letterb
 - Ter uma conta no Filmow
 - Ter conexão com internet
 
-- Windows: [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/v2.2.3/filmow_to_letterboxd.exe)
-- Linux: [Extraia o arquivo .zip e rode o arquivo parse_filmow.py](https://github.com/myanari/filmow_to_letterboxd/archive/master.zip)
+#### Windows: [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/v2.2.3/filmow_to_letterboxd.exe)
+#### Linux:
+ - [Extraia o arquivo .zip](https://github.com/myanari/filmow_to_letterboxd/archive/master.zip)
+ - Abra o terminal na pasta com todos os arquivos
+ - Copie e cole o seguinte: `chmod +x init.sh && ./init.sh`
 
 ## Usando o programa
 
