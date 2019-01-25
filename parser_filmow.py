@@ -3,6 +3,7 @@ import csv
 import string
 import requests
 import re
+import webbrowser
 from bs4 import BeautifulSoup
 
 class Parser():
@@ -108,6 +109,21 @@ if __name__ == "__main__":
     print('Usuário {} não encontrado. Tem certeza que digitou certo?'.format(username))
     username = input('Digite seu nome de usuário do Filmow: ')
     Parser(username.lower().strip())
-  print('Pronto! Vá para https://letterboxd.com/import/, SELECT A FILE, selecione o(s) arquivo(s) de extensão csv criado(s) pelo programa')
-  go_to_letterboxd = input('Aperte enter para ir para o site do Filmow para importar os filmes.')
-  print(go_to_letterboxd)
+
+  msg = """
+          Pronto!
+          Vá para https://letterboxd.com/import/, SELECT A FILE, 
+          e selecione o(s) arquivo(s) de extensão csv criado(s) pelo programa
+        """
+  print(msg)
+
+  go_to_letterboxd = input('Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) ')
+
+  if go_to_letterboxd.startswith('s'):
+    webbrowser.open('https://letterboxd.com/import/')
+  elif go_to_letterboxd.startswith('n'):
+    print('Então tchau')
+    input()
+  else:
+    print('Entendi não, mas tchau')
+    input()

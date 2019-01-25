@@ -5,3 +5,5 @@ Include
 build
 dist
 __pycache__
+*.csv
+*.png
