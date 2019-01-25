@@ -2,11 +2,6 @@
 
 Programa pra pegar filmes assistidos no Filmow pra serem importados pelo Letterboxd.
 
-#### Requisitos:
-- Já ter uma conta no Letterboxd feita (mesmo que não tenha nada lá, só é necessário já ter a criado)
-- Ter uma conta no Filmow
-- Ter conexão com internet
-
 #### Windows: [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/v2.2.3/filmow_to_letterboxd.exe)
 #### Linux:
  - [Extraia o arquivo .zip](https://github.com/myanari/filmow_to_letterboxd/archive/master.zip)
