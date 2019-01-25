@@ -7,7 +7,7 @@ Programa pra importar filmes assistidos/avaliados no Filmow pra um arquivo .csv,
 - Ter uma conta no Filmow
 - Ter conexão com internet
 
-- Windows: [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/exes2/filmow_to_letterboxd.exe)
+- Windows: [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/v2.2.3/filmow_to_letterboxd.exe)
 - Linux: [Extraia o arquivo .zip e de clique duplo no arquivo parse_filmow.py](https://github.com/myanari/filmow_to_letterboxd/archive/master.zip)
 
 ## Usando o programa
