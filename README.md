@@ -2,7 +2,7 @@
 
 Programa pra pegar filmes assistidos no Filmow pra serem importados pelo Letterboxd.
 
-#### Windows: [Download](https://github.com/myanari/filmow_to_letterboxd/releases/download/v2.2.3/filmow_to_letterboxd.exe)
+#### Windows: [Download](https://github.com/yanari/filmow_to_letterboxd/releases/download/v2.2.4/filmow_to_letterboxd.exe)
 #### Linux:
  - [Extraia o arquivo .zip](https://github.com/myanari/filmow_to_letterboxd/archive/master.zip)
  - Abra o terminal na pasta com todos os arquivos
