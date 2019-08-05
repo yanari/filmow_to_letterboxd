@@ -18,4 +18,4 @@ Programa pra pegar filmes assistidos no Filmow pra serem importados pelo Letterb
 #### Se quiser dar uma ajudinha ;)
 <a href="https://www.buymeacoffee.com/yanari" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
-[Instagram](https://www.instagram.com/rootpath/), [Letterboxd](https://letterboxd.com/r00t/), [Filmow](https://filmow.com/usuario/shadazz/)
+[Instagram](https://www.instagram.com/v.llanelle/), [Letterboxd](https://letterboxd.com/r00t/), [Filmow](https://filmow.com/usuario/shadazz/)
