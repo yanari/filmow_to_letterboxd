@@ -16,9 +16,9 @@ class Parser():
     self.movies_parsed = 0
     self.total_files = 1
 
-    self.parse(user)
     self.create_csv(self.total_files)
-
+    self.parse(user)
+    
   def create_csv(self, all_movies):
     with open(str(all_movies) + self.user + '.csv', 'w', encoding='UTF-8') as f:
       writer = csv.writer(f)
@@ -117,13 +117,15 @@ if __name__ == "__main__":
         """
   print(msg)
 
-  go_to_letterboxd = input('Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) ')
+  while True:
+    go_to_letterboxd = input('Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) ').lower()
+    if not go_ to_letterboxhd == '' and go_ to_letterboxhd[0] in ('s', 'n'):
+      break
+    else:
+      print('Opcao inválida.')
 
   if go_to_letterboxd.startswith('s'):
     webbrowser.open('https://letterboxd.com/import/')
-  elif go_to_letterboxd.startswith('n'):
-    print('Então tchau')
-    input()
   else:
-    print('Entendi não, mas tchau')
+    print('Então tchau')
     input()
