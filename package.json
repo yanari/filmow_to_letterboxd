@@ -1,0 +1,16 @@
+{
+  "name": "filmow_to_letterboxd",
+  "version": "1.0.0",
+  "main": "app.js",
+  "repository": "https://github.com/yanari/filmow_to_letterboxd",
+  "author": "Marcelle Yanari <yanarimy@gmail.com>",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "express": "^4.17.1",
+    "jsdom": "^15.1.1"
+  }
+}

@@ -1,9 +1,2 @@
-Scripts
-tcl
-Lib
-Include
-build
-dist
-__pycache__
-*.csv
-*.png
+node_modules
+yarn.lock

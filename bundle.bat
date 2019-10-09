@@ -1,1 +1,0 @@
-pyinstaller filmow_to_letterboxd.py --onefile --clean --noconsole --icon icon.ico --exclude-module tkinter
