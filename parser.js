@@ -51,10 +51,9 @@ const parse = async (username, page) => {
 }
 
 const calculateUserRating = (userRating) => {
-    if (userRating) {
+    if (typeof userRating === 'string') {
         const totalRating = userRating.match(/width: (.*?).0%/)[1];
         const ratingOutOf5 = totalRating / 20;
-        console.log(ratingOutOf5);
         return ratingOutOf5;
     }
 }
