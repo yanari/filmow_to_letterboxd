@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
   while True:
     go_to_letterboxd = input('Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) ').lower()
-    if not go_ to_letterboxhd == '' and go_ to_letterboxhd[0] in ('s', 'n'):
+    if not go_to_letterboxhd == '' and go_to_letterboxhd[0] in ('s', 'n'):
       break
     else:
       print('Opcao inválida.')
