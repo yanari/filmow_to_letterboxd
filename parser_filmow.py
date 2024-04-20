@@ -9,28 +9,26 @@ import dataclasses as dc
 
 @dc.dataclass
 class Parser:
+    user: str
     page: int = dc.field(init=False)
     movies_parsed: int = dc.field(init=False, default=0)
+    df: pd.DataFrame = dc.field(init=False)
     soup: BeautifulSoup = dc.field(
         init=False, default_factory=lambda: BeautifulSoup(features="html.parser")
     )
 
-    def __init__(self, user):
+    def __post_init__ (self) -> None:
+        self.df = pd.DataFrame(columns=[
+            "Title", "Directors", "Year", "Rating", "WatchedDate", "Review"
+        ])
+        self.parse()
+
+    def parse (self) -> None:
         self.page = 1
-        self.soup = BeautifulSoup(features="html.parser")
-
-        self.user = user
-        self.movies_parsed = 0
-
-        pd.DataFrame(columns=["Title", "Directors", "Year"]).to_csv(self.user + ".csv", index=False)
-        self.parse(user)
-
-    def parse(self, user):
-        self.page = 1
-        last_page = self.get_last_page(user)
+        last_page = self.get_last_page()
 
         while self.page <= last_page:
-            url = "https://filmow.com/usuario/" + user + "/filmes/ja-vi/?pagina=" + str(self.page)
+            url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/?pagina=" + str(self.page)
 
         source_code = requests.get(url).text
 
@@ -83,8 +81,8 @@ class Parser:
             self.movies_parsed = 0
             self.create_csv(self.total_files)
 
-    def get_last_page(self, user):
-        url = "https://filmow.com/usuario/" + user + "/filmes/ja-vi/"
+    def get_last_page (self) -> int:
+        url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/"
 
         source_code = requests.get(url).text
 
