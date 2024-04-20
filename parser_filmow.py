@@ -5,68 +5,122 @@ import webbrowser
 from bs4 import BeautifulSoup
 import pandas as pd
 import dataclasses as dc
+import datetime as dt
 
 
 @dc.dataclass
 class Parser:
     user: str
-    page: int = dc.field(init=False)
-    movies_parsed: int = dc.field(init=False, default=0)
-    df: pd.DataFrame = dc.field(init=False)
-    soup: BeautifulSoup = dc.field(
-        init=False, default_factory=lambda: BeautifulSoup(features="html.parser")
-    )
+    base_url: str = dc.field(init=False)
+    movies: list[dict[str, str]] = dc.field(init=False, default_factory=list)
 
     def __post_init__ (self) -> None:
-        self.df = pd.DataFrame(columns=[
-            "Title", "Directors", "Year", "Rating", "WatchedDate", "Review"
-        ])
+        self.base_url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/"
+        # self.df = pd.DataFrame(columns=[
+        #     "Title", "Directors", "Year", "Rating"
+        # ])
+
         self.parse()
 
-    def parse (self) -> None:
-        self.page = 1
-        last_page = self.get_last_page()
+    def get_last_page (self) -> int:
+        last_page = 1
 
-        while self.page <= last_page:
-            url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/?pagina=" + str(self.page)
-
-            source_code = requests.get(url).text
-
-            soup = BeautifulSoup(source_code, "html.parser")
-
-            if soup.find("h1").text == "Vixi! - Página não encontrada":
-                raise Exception
-
-            for title in soup.find_all("a", {"class": "tip-movie"}):
-                self.parse_movie("https://filmow.com" + title.get("href"))
-                self.movies_parsed += 1
-
-            self.page += 1
-
-    def parse_movie(self, url):
-        movie = {"title": None, "director": None, "year": None}
-        source_code = requests.get(url).text
+        source_code = requests.get(self.base_url).text
         soup = BeautifulSoup(source_code, "html.parser")
 
         try:
-            movie["title"] = soup.find("h2", {"class": "movie-original-title"}).get_text().strip()
-        except AttributeError:
-            movie["title"] = soup.find("h1").get_text().strip()
+            pag_div = soup.find("div", class_="pagination")
+            u_list = pag_div.find("ul").find_all("li")
+            for li in u_list:
+                match = re.search(r"pagina=(\d*)", str(li)).group(1)
+                last_page = max(last_page, int(match))
+
+        except Exception:
+            pass
+
+        return last_page
+
+    def parse (self) -> None:
+        curr_page = 1
+        last_page = self.get_last_page()
+
+        while curr_page <= last_page:
+            url = self.base_url + f"?pagina={curr_page}"
+
+            source_code = requests.get(url).text
+            soup = BeautifulSoup(source_code, "html.parser")
+            if soup.find("h1").text == "Vixi! - Página não encontrada":
+                raise Exception
+
+            movie_list = soup.find("ul", id="movies-list").find_all("li")
+            for movie in movie_list:
+                title = movie.find("a", class_="tip-movie")["href"]
+                rating = None
+
+                try:
+                    star_span = movie.find("span", class_="star-rating")
+                    rating = re.match(
+                        r"Nota: ([0-5](?:\.5)?) estrela(?:s)?", star_span["title"]
+                    ).group(1)
+
+                except Exception:
+                    pass
+
+                self.parse_movie(title, rating)
+
+            curr_page += 1
+
+    def parse_movie (self, movie_title, rating: str | None) -> None:
+        print(f"Iniciando leitura de filme {movie_title}")
+        source_code = requests.get(f"https://filmow.com{movie_title}").text
+        soup = BeautifulSoup(source_code, "html.parser")
 
         try:
-            movie["director"] = soup.find("span", {"itemprop": "director"}).select("strong")[0].get_text()
-        except AttributeError:
+            movie_profile = soup.find("div", class_="movie-profile")
+            title_div = movie_profile.find("div", class_="movie-title")
+            title = title_div.find("h1").text
+
+            if (
+                original_name := movie_profile.find("h2", class_="movie-original-title")
+            ) is not None:
+                title = original_name.text
+
+            else:
+                print("\tUtilizando título em português.")
+
+            director = None
             try:
-                movie["director"] = soup.find("span", {"itemprop": "directors"}).getText().strip()
-            except AttributeError:
-                movie["director"] = ""
+                directors = movie_profile.find("div", class_="directors").find_all("a")
+                director = ", ".join([
+                    director.find("span", itemprop="name").getText().strip()
+                    for director in directors
+                ])
 
-        try:
-            movie["year"] = soup.find("small", {"class": "release"}).get_text()
-        except AttributeError:
-            movie["year"] = ""
+            except Exception:
+                print("\tDiretor não encontrado.")
+                pass
 
-        self.write_to_csv(movie)
+            release = None
+            try:
+                release = title_div.find("small", class_="release").text
+
+            except Exception:
+                print("\tAno de Lançamento não encontrado.")
+                pass
+
+            if rating is None:
+                print("\tRating não identificado para o filme")
+
+            self.movies.append({
+                "Title": title,
+                "Directors": director,
+                "Year": release,
+                "Rating": rating,
+            })
+
+        except Exception:
+            print(f"Erro tentando ler o filme referente a {movie_title}")
+            pass
 
     def write_to_csv(self, movie):
         if self.movies_parsed < 1900:
@@ -82,27 +136,6 @@ class Parser:
             self.movies_parsed = 0
             self.create_csv(self.total_files)
 
-    def get_last_page (self) -> int:
-        url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/"
-
-        source_code = requests.get(url).text
-
-        soup = BeautifulSoup(source_code, "html.parser")
-
-        last_page = 1
-
-        try:
-            pag_div = soup.find("div", class_="pagination")
-            u_list = pag_div.find("ul").find_all("li")
-            for li in u_list:
-                match = re.search(r"pagina=(\d*)", str(li)).group(1)
-
-                last_page = max(last_page, int(match))
-
-        except Exception:
-            pass
-
-        return last_page
 
 if __name__ == "__main__":
     try:
