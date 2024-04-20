@@ -88,14 +88,20 @@ class Parser:
 
         soup = BeautifulSoup(source_code, "html.parser")
 
+        last_page = 1
+
         try:
-            tag = list(soup.find("div", {"class": "pagination"}).find("ul").children)[-2]
-            match = re.search(r"pagina=(\d*)", str(tag)).group(1)
-            return int(match)
+            pag_div = soup.find("div", class_="pagination")
+            u_list = pag_div.find("ul").find_all("li")
+            for li in u_list:
+                match = re.search(r"pagina=(\d*)", str(li)).group(1)
+
+                last_page = max(last_page, int(match))
 
         except Exception:
-            return 1
+            pass
 
+        return last_page
 
 if __name__ == "__main__":
     try:
