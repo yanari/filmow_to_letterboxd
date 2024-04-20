@@ -30,17 +30,18 @@ class Parser:
         while self.page <= last_page:
             url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/?pagina=" + str(self.page)
 
-        source_code = requests.get(url).text
+            source_code = requests.get(url).text
 
-        soup = BeautifulSoup(source_code, "html.parser")
+            soup = BeautifulSoup(source_code, "html.parser")
 
-        if soup.find("h1").text == "Vixi! - Página não encontrada":
-            raise Exception
+            if soup.find("h1").text == "Vixi! - Página não encontrada":
+                raise Exception
 
-        for title in soup.find_all("a", {"class": "tip-movie"}):
-            self.parse_movie("https://filmow.com" + title.get("href"))
-            self.movies_parsed += 1
-        self.page += 1
+            for title in soup.find_all("a", {"class": "tip-movie"}):
+                self.parse_movie("https://filmow.com" + title.get("href"))
+                self.movies_parsed += 1
+
+            self.page += 1
 
     def parse_movie(self, url):
         movie = {"title": None, "director": None, "year": None}
