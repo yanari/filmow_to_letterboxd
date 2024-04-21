@@ -1,11 +1,9 @@
-import re
-import csv
+import regex as re
 import requests
 import webbrowser
 from bs4 import BeautifulSoup
 import pandas as pd
 import dataclasses as dc
-import datetime as dt
 
 
 @dc.dataclass
@@ -16,11 +14,9 @@ class Parser:
 
     def __post_init__ (self) -> None:
         self.base_url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/"
-        # self.df = pd.DataFrame(columns=[
-        #     "Title", "Directors", "Year", "Rating"
-        # ])
 
         self.parse()
+        self.write_csv_files()
 
     def get_last_page (self) -> int:
         last_page = 1
@@ -122,19 +118,25 @@ class Parser:
             print(f"Erro tentando ler o filme referente a {movie_title}")
             pass
 
-    def write_to_csv(self, movie):
-        if self.movies_parsed < 1900:
-            with open(str(self.total_files) + self.user + ".csv", "a", encoding="UTF-8") as f:
-                writer = csv.writer(f)
-                writer.writerow((
-                    movie["title"],
-                    movie["director"],
-                    movie["year"]
-                ))
-        else:
-            self.total_files += 1
-            self.movies_parsed = 0
-            self.create_csv(self.total_files)
+    def write_csv_files (self) -> None:
+        df = pd.DataFrame(self.movies, columns=["Title", "Directors", "Year", "Rating"])
+
+        curr_file = 1
+        start_index = 0
+        end_index = min(1900, len(self.movies))
+
+        while end_index < len(self.movies):
+            df[ start_index : end_index ].to_csv(
+                f"{curr_file} + {self.user}.csv", index=False, encoding="UTF-8"
+            )
+
+            start_index = end_index
+            end_index = min(start_index + 1900, len(self.movies))
+            curr_file += 1
+
+        df[ start_index : end_index ].to_csv(
+            f"{curr_file} + {self.user}.csv", index=False, encoding="UTF-8"
+        )
 
 
 if __name__ == "__main__":
@@ -160,7 +162,9 @@ if __name__ == "__main__":
     print(msg)
 
     while True:
-        go_to_letterboxd = input('Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) ').lower()
+        go_to_letterboxd = input(
+            'Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) '
+        ).lower()
         if not go_to_letterboxd == "" and go_to_letterboxd[0] in ("s", "n"):
             break
 
@@ -171,4 +175,4 @@ if __name__ == "__main__":
             webbrowser.open("https://letterboxd.com/import/")
 
         else:
-            print('Então tchau')
+            print("Então tchau")
