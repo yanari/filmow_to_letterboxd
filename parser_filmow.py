@@ -1,9 +1,10 @@
-import regex as re
-import requests
 import webbrowser
-from bs4 import BeautifulSoup
-import pandas as pd
 import dataclasses as dc
+
+import requests
+import regex as re
+import pandas as pd
+from bs4 import BeautifulSoup
 
 
 @dc.dataclass
