@@ -1,3 +1,4 @@
+import logging
 import webbrowser
 import dataclasses as dc
 
@@ -7,6 +8,11 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 
+log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler())
+log.setLevel(logging.INFO)
+
+
 @dc.dataclass
 class Parser:
     user: str
@@ -14,7 +20,7 @@ class Parser:
     movies: list[dict[str, str]] = dc.field(init=False, default_factory=list)
 
     def __post_init__ (self) -> None:
-        self.base_url = "https://filmow.com/usuario/" + self.user + "/filmes/ja-vi/"
+        self.base_url = f"https://filmow.com/usuario/{self.user}/filmes/ja-vi/"
 
         self.parse()
         self.write_csv_files()
@@ -33,6 +39,7 @@ class Parser:
                 last_page = max(last_page, int(match))
 
         except Exception:
+            log.info("Erro ao tentar encontrar a última página.")
             pass
 
         return last_page
@@ -43,10 +50,11 @@ class Parser:
 
         while curr_page <= last_page:
             url = self.base_url + f"?pagina={curr_page}"
-
             source_code = requests.get(url).text
             soup = BeautifulSoup(source_code, "html.parser")
+
             if soup.find("h1").text == "Vixi! - Página não encontrada":
+                log.info(f"Erro ao tentar acessar a {curr_page}-ésima página do ja-vi.")
                 raise Exception
 
             movie_list = soup.find("ul", id="movies-list").find_all("li")
@@ -68,7 +76,8 @@ class Parser:
             curr_page += 1
 
     def parse_movie (self, movie_title, rating: str | None) -> None:
-        print(f"Iniciando leitura de filme {movie_title}")
+        log.debug(f"Iniciando leitura do filme {movie_title}")
+
         source_code = requests.get(f"https://filmow.com{movie_title}").text
         soup = BeautifulSoup(source_code, "html.parser")
 
@@ -83,7 +92,7 @@ class Parser:
                 title = original_name.text
 
             else:
-                print("\tUtilizando título em português.")
+                log.debug("\tUtilizando título em português.")
 
             director = None
             try:
@@ -94,7 +103,7 @@ class Parser:
                 ])
 
             except Exception:
-                print("\tDiretor não encontrado.")
+                log.debug("\tDiretor não encontrado.")
                 pass
 
             release = None
@@ -102,11 +111,11 @@ class Parser:
                 release = title_div.find("small", class_="release").text
 
             except Exception:
-                print("\tAno de Lançamento não encontrado.")
+                log.debug("\tAno de Lançamento não encontrado.")
                 pass
 
             if rating is None:
-                print("\tRating não identificado para o filme")
+                log.debug("\tRating não identificado para o filme")
 
             self.movies.append({
                 "Title": title,
@@ -116,7 +125,7 @@ class Parser:
             })
 
         except Exception:
-            print(f"Erro tentando ler o filme referente a {movie_title}")
+            log.debug(f"Erro tentando ler o filme referente a {movie_title}")
             pass
 
     def write_csv_files (self) -> None:
