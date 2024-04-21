@@ -137,7 +137,7 @@ class Parser:
 
         while end_index < len(self.movies):
             df[ start_index : end_index ].to_csv(
-                f"{curr_file} + {self.user}.csv", index=False, encoding="UTF-8"
+                f"{curr_file}{self.user}.csv", index=False, encoding="UTF-8"
             )
 
             start_index = end_index
@@ -145,7 +145,7 @@ class Parser:
             curr_file += 1
 
         df[ start_index : end_index ].to_csv(
-            f"{curr_file} + {self.user}.csv", index=False, encoding="UTF-8"
+            f"{curr_file}{self.user}.csv", index=False, encoding="UTF-8"
         )
 
 
