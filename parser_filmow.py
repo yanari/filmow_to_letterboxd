@@ -1,131 +1,188 @@
-import os
-import csv
-import string
-import requests
-import re
+import logging
 import webbrowser
+import dataclasses as dc
+
+import requests
+import regex as re
+import pandas as pd
 from bs4 import BeautifulSoup
 
-class Parser():
-  def __init__(self, user):
-    self.page = 1
-    self.total_files = 1
-    self.soup = BeautifulSoup(features='html.parser')
 
-    self.user = user
-    self.movies_parsed = 0
-    self.total_files = 1
+log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler())
+log.setLevel(logging.INFO)
 
-    self.create_csv(self.total_files)
-    self.parse(user)
-    
-  def create_csv(self, all_movies):
-    with open(str(all_movies) + self.user + '.csv', 'w', encoding='UTF-8') as f:
-      writer = csv.writer(f)
-      writer.writerow(('Title', 'Directors', 'Year'))
-  
-  def parse(self, user):
-    self.page = 1
-    last_page = self.get_last_page(user)
 
-    while self.page <= last_page:
-      url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/?pagina=' + str(self.page)
+@dc.dataclass
+class Parser:
+    user: str
+    base_url: str = dc.field(init=False)
+    movies: list[dict[str, str]] = dc.field(init=False, default_factory=list)
 
-      source_code = requests.get(url).text
+    def __post_init__ (self) -> None:
+        self.base_url = f"https://filmow.com/usuario/{self.user}/filmes/ja-vi/"
 
-      soup = BeautifulSoup(source_code, 'html.parser')
+        self.parse()
+        self.write_csv_files()
 
-      if soup.find('h1').text == 'Vixi! - Página não encontrada':
-        raise Exception
+    def get_last_page (self) -> int:
+        last_page = 1
 
-      for title in soup.find_all('a', {'class': 'tip-movie'}):
-        self.parse_movie('https://filmow.com' + title.get('href'))
-        self.movies_parsed += 1
-      self.page += 1
+        source_code = requests.get(self.base_url).text
+        soup = BeautifulSoup(source_code, "html.parser")
 
-  def parse_movie(self, url):
-    movie = {'title': None, 'director': None, 'year': None}
-    source_code = requests.get(url).text
-    soup = BeautifulSoup(source_code, 'html.parser')
+        try:
+            pag_div = soup.find("div", class_="pagination")
+            u_list = pag_div.find("ul").find_all("li")
+            for li in u_list:
+                match = re.search(r"pagina=(\d*)", str(li)).group(1)
+                last_page = max(last_page, int(match))
 
-    try:
-      movie['title'] = soup.find('h2', {'class': 'movie-original-title'}).get_text().strip()
-    except AttributeError:
-      movie['title'] = soup.find('h1').get_text().strip()
+        except Exception:
+            log.info("Erro ao tentar encontrar a última página.")
+            pass
 
-    try:
-      movie['director'] = soup.find('span', {'itemprop': 'director'}).select('strong')[0].get_text()
-    except AttributeError:
-      try:
-        movie['director'] = soup.find('span', {'itemprop': 'directors'}).getText().strip()
-      except AttributeError:
-        movie['director'] = ''
+        return last_page
 
-    try:
-      movie['year'] = soup.find('small', {'class': 'release'}).get_text()
-    except AttributeError:
-      movie['year'] = ''
+    def parse (self) -> None:
+        curr_page = 1
+        last_page = self.get_last_page()
 
-    self.write_to_csv(movie)
+        while curr_page <= last_page:
+            url = self.base_url + f"?pagina={curr_page}"
+            source_code = requests.get(url).text
+            soup = BeautifulSoup(source_code, "html.parser")
 
-  def write_to_csv(self, movie):
-    if self.movies_parsed < 1900:
-      with open(str(self.total_files) + self.user + '.csv', 'a', encoding='UTF-8') as f:
-        writer = csv.writer(f)
-        writer.writerow((
-          movie['title'],
-          movie['director'],
-          movie['year']
-        ))
-    else:
-      self.total_files += 1
-      self.movies_parsed = 0
-      self.create_csv(self.total_files)
-      
-  def get_last_page(self, user):
-    url = 'https://filmow.com/usuario/'+ user + '/filmes/ja-vi/'
+            if soup.find("h1").text == "Vixi! - Página não encontrada":
+                log.info(f"Erro ao tentar acessar a {curr_page}-ésima página do ja-vi.")
+                raise Exception
 
-    source_code = requests.get(url).text
+            movie_list = soup.find("ul", id="movies-list").find_all("li")
+            for movie in movie_list:
+                title = movie.find("a", class_="tip-movie")["href"]
+                rating = None
 
-    soup = BeautifulSoup(source_code, 'html.parser')
+                try:
+                    star_span = movie.find("span", class_="star-rating")
+                    rating = re.match(
+                        r"Nota: ([0-5](?:\.5)?) estrela(?:s)?", star_span["title"]
+                    ).group(1)
 
-    try:
-      tag = list(soup.find('div', {'class': 'pagination'}).find('ul').children)[-2]
-      match = re.search(r'pagina=(\d*)', str(tag)).group(1)
-      return int(match)
-    except:
-      return 1
+                except Exception:
+                    pass
+
+                self.parse_movie(title, rating)
+
+            curr_page += 1
+
+    def parse_movie (self, movie_title, rating: str | None) -> None:
+        log.debug(f"Iniciando leitura do filme {movie_title}")
+
+        source_code = requests.get(f"https://filmow.com{movie_title}").text
+        soup = BeautifulSoup(source_code, "html.parser")
+
+        try:
+            movie_profile = soup.find("div", class_="movie-profile")
+            title_div = movie_profile.find("div", class_="movie-title")
+            title = title_div.find("h1").text
+
+            if (
+                original_name := movie_profile.find("h2", class_="movie-original-title")
+            ) is not None:
+                title = original_name.text
+
+            else:
+                log.debug("\tUtilizando título em português.")
+
+            director = None
+            try:
+                directors = movie_profile.find("div", class_="directors").find_all("a")
+                director = ", ".join([
+                    director.find("span", itemprop="name").getText().strip()
+                    for director in directors
+                ])
+
+            except Exception:
+                log.debug("\tDiretor não encontrado.")
+                pass
+
+            release = None
+            try:
+                release = title_div.find("small", class_="release").text
+
+            except Exception:
+                log.debug("\tAno de Lançamento não encontrado.")
+                pass
+
+            if rating is None:
+                log.debug("\tRating não identificado para o filme")
+
+            self.movies.append({
+                "Title": title,
+                "Directors": director,
+                "Year": release,
+                "Rating": rating,
+            })
+
+        except Exception:
+            log.debug(f"Erro tentando ler o filme referente a {movie_title}")
+            pass
+
+    def write_csv_files (self) -> None:
+        df = pd.DataFrame(self.movies, columns=["Title", "Directors", "Year", "Rating"])
+
+        curr_file = 1
+        start_index = 0
+        end_index = min(1900, len(self.movies))
+
+        while end_index < len(self.movies):
+            df[ start_index : end_index ].to_csv(
+                f"{curr_file}{self.user}.csv", index=False, encoding="UTF-8"
+            )
+
+            start_index = end_index
+            end_index = min(start_index + 1900, len(self.movies))
+            curr_file += 1
+
+        df[ start_index : end_index ].to_csv(
+            f"{curr_file}{self.user}.csv", index=False, encoding="UTF-8"
+        )
+
 
 if __name__ == "__main__":
-  try:
-    username = input('Digite seu nome de usuário do Filmow: ')
-    msg = """
-          Seus filmes estão sendo importados no plano de fundo :)\n
-          Não feche a janela e aguarde um momento.
-          """
-    print(msg)
-    Parser(username.lower().strip())
-  except Exception:
-    print('Usuário {} não encontrado. Tem certeza que digitou certo?'.format(username))
-    username = input('Digite seu nome de usuário do Filmow: ')
-    Parser(username.lower().strip())
-
-  msg = """
-          Pronto!
-          Vá para https://letterboxd.com/import/, SELECT A FILE, 
-          e selecione o(s) arquivo(s) de extensão csv criado(s) pelo programa
+    try:
+        username = input('Digite seu nome de usuário do Filmow: ')
+        msg = """
+        Seus filmes estão sendo importados no plano de fundo :)\n
+        Não feche a janela e aguarde um momento.
         """
-  print(msg)
+        print(msg)
+        Parser(username.lower().strip())
 
-  while True:
-    go_to_letterboxd = input('Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) ').lower()
-    if not go_to_letterboxhd == '' and go_to_letterboxhd[0] in ('s', 'n'):
-      break
-    else:
-      print('Opcao inválida.')
+    except Exception:
+        print(f"Usuário {username} não encontrado. Tem certeza que digitou certo?")
+        username = input("Digite seu nome de usuário do Filmow: ")
+        Parser(username.lower().strip())
 
-  if go_to_letterboxd.startswith('s'):
-    webbrowser.open('https://letterboxd.com/import/')
-  else:
-    print('Então tchau')
-    input()
+    msg = """
+    Pronto!
+    Vá para https://letterboxd.com/import/, SELECT A FILE,
+    e selecione o(s) arquivo(s) de extensão csv criado(s) pelo programa
+    """
+    print(msg)
+
+    while True:
+        go_to_letterboxd = input(
+            'Gostaria de ser direcionado para "https://letterboxd.com/import/"? (s/n) '
+        ).lower()
+        if not go_to_letterboxd == "" and go_to_letterboxd[0] in ("s", "n"):
+            break
+
+        else:
+            print("Opcao inválida.")
+
+        if go_to_letterboxd.startswith("s"):
+            webbrowser.open("https://letterboxd.com/import/")
+
+        else:
+            print("Então tchau")
