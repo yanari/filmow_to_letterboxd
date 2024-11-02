@@ -1,4 +1,4 @@
 beautifulsoup4==4.12.3
-requests==2.31.0
+requests==2.32.2
 pandas==2.2.2
 regex==2024.4.16
