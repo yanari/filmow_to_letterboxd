@@ -5,6 +5,7 @@ Include
 build
 dist
 __pycache__
+*.egg-info/
 *.csv
 *.png
 venv/

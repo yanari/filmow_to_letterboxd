@@ -1,137 +1,194 @@
-import wx
-import wx.lib.agw.hyperlink as hl
-import webbrowser
+import argparse
+import csv
+import os
+import re
+import sys
+from pathlib import Path
+from urllib.parse import urljoin
 
-from parser_filmow import Parser
-from utils import delay
+import cloudscraper
+from bs4 import BeautifulSoup
+from colorama import Fore, Style, just_fix_windows_console
 
-class Frame(wx.Frame):
-  def __init__(self, *args, **kwargs):
-    super(Frame, self).__init__(*args, **kwargs)
 
-    self.MyFrame = self
+BASE_URL = "https://filmow.com"
+CSV_COLUMNS = ("Title", "Directors", "Year", "Rating")
+CSV_LIMIT = 1900
+USE_COLORS = sys.stdout.isatty() and "NO_COLOR" not in os.environ
 
-    self.is_running = False
 
-    self.panel = wx.Panel(
-      self,
-      pos=(0, 0),
-      size=(500,100),
-      style=wx.CLOSE_BOX | wx.CAPTION | wx.MINIMIZE_BOX | wx.SYSTEM_MENU
+def color(text, ansi_color):
+    if not USE_COLORS:
+        return text
+    return f"{ansi_color}{text}{Style.RESET_ALL}"
+
+
+def get_page(session, url):
+    response = session.get(url, timeout=30)
+    response.raise_for_status()
+    return BeautifulSoup(response.text, "html.parser")
+
+
+def get_last_page(soup):
+    pages = [
+        int(page)
+        for link in soup.select(".pagination a[href]")
+        if (match := re.search(r"pagina=(\d+)", link["href"]))
+        for page in [match.group(1)]
+    ]
+    return max(pages, default=1)
+
+
+def get_movie(session, path, rating):
+    soup = get_page(session, urljoin(BASE_URL, path))
+    title_element = soup.select_one(".movie__title")
+    if not title_element:
+        raise ValueError("título não encontrado")
+
+    title = title_element.get_text(strip=True)
+    original_title = soup.select_one(
+        "div.col-12.col-xl-7 > div.d-flex.gap-2 span i"
     )
-    self.panel.SetBackgroundColour('#ffffff')
-    self.SetTitle('Filmow to Letterboxd')
-    self.SetMinSize((500, 300))
-    self.SetMaxSize((500, 300))
+    if original_title:
+        title = original_title.get_text(strip=True)
 
-    self.letterboxd_link = hl.HyperLinkCtrl(
-      self.panel,
-      -1,
-      'letterboxd',
-      URL='https://letterboxd.com/import/',
-      pos=(420,240)
+    directors = [
+        link.get_text(strip=True)
+        for link in soup.select(".movie__mobile-directors a")
+    ]
+
+    year_element = soup.select_one(".movie__year")
+    year_match = re.search(r"\d{4}", year_element.get_text()) if year_element else None
+
+    return {
+        "Title": title,
+        "Directors": ", ".join(directors),
+        "Year": year_match.group() if year_match else "",
+        "Rating": rating or "",
+    }
+
+
+def get_movies(username):
+    session = cloudscraper.create_scraper()
+    watched_url = f"{BASE_URL}/usuario/{username}/filmes/ja-vi/"
+    first_page = get_page(session, watched_url)
+
+    if not first_page.select_one("#movies-list"):
+        raise ValueError(f"usuário '{username}' não encontrado ou sem filmes assistidos")
+
+    total_element = first_page.select_one('a.stat[href*="/filmes/ja-vi/"] .number')
+    if not total_element:
+        raise ValueError(f"não foi possível obter o total de filmes de '{username}'")
+    total_movies = int(total_element.get_text(strip=True))
+
+    print("--------------------------------")
+    print(
+        color(
+            f"Usuário {username} encontrado. "
+            f"Total de filmes a serem importados: {total_movies}",
+            Fore.CYAN,
+        )
     )
-    self.letterboxd_link.SetToolTip(wx.ToolTip('Clica só quando o programa tiver rodado e sua conta no Letterboxd tiver criada, beleza?'))
+    print("--------------------------------")
 
-    self.coffee_link = hl.HyperLinkCtrl(
-      self.panel,
-      -1,
-      'quer me agradecer?',
-      URL='https://www.buymeacoffee.com/yanari',
-      pos=(310,240)
+    movies = []
+    total_pages = get_last_page(first_page)
+
+    for page_number in range(1, total_pages + 1):
+        print(color(f"Página {page_number}/{total_pages}", Fore.MAGENTA))
+        soup = (
+            first_page
+            if page_number == 1
+            else get_page(session, f"{watched_url}?pagina={page_number}")
+        )
+
+        for item in soup.select("#movies-list li.movie_list_item"):
+            link = item.select_one("a.tip-movie[href]")
+            if not link:
+                continue
+
+            rating_element = item.select_one(".star-rating[title]")
+            rating_match = (
+                re.search(r"Nota: ([0-5](?:\.5)?)", rating_element["title"])
+                if rating_element
+                else None
+            )
+
+            try:
+                movie = get_movie(
+                    session,
+                    link["href"],
+                    rating_match.group(1) if rating_match else None,
+                )
+                movies.append(movie)
+                rating = (
+                    color(f"Nota {movie['Rating']}", Fore.GREEN)
+                    if movie["Rating"]
+                    else color("Nota não atribuída", Fore.YELLOW)
+                )
+                print(f"{movie['Title']} - {rating}")
+            except Exception as error:
+                print(
+                    color(
+                        f"Aviso: não foi possível importar {link['href']}: {error}",
+                        Fore.YELLOW,
+                    )
+                )
+
+    if not movies:
+        raise RuntimeError("nenhum filme foi importado; nenhum CSV foi criado")
+
+    return movies
+
+
+def write_csv_files(username, movies, output_directory):
+    output_directory.mkdir(parents=True, exist_ok=True)
+    files = []
+    chunks = [
+        movies[index : index + CSV_LIMIT]
+        for index in range(0, len(movies), CSV_LIMIT)
+    ]
+
+    for number, chunk in enumerate(chunks, start=1):
+        suffix = f"-{number}" if len(chunks) > 1 else ""
+        path = output_directory / f"{username}{suffix}.csv"
+        with path.open("w", newline="", encoding="utf-8") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=CSV_COLUMNS)
+            writer.writeheader()
+            writer.writerows(chunk)
+        files.append(path)
+
+    return files
+
+
+def main():
+    just_fix_windows_console()
+    parser = argparse.ArgumentParser(
+        description="Exporta filmes assistidos do Filmow para CSV do Letterboxd."
     )
-    self.coffee_link.SetToolTip(wx.ToolTip('Se tiver dado tudo certo cê pode me pagar um cafézinho, que tal?. Não é obrigatório, claro.'))
-
-    wx.StaticText(self.panel, -1, 'Username no Filmow:', pos=(25, 54))
-    self.username = wx.TextCtrl(self.panel,  size=(200, 25), pos=(150, 50))
-    submit_button = wx.Button(self.panel, wx.ID_SAVE, 'Submit', pos=(360, 50))
-
-    self.Bind(wx.EVT_BUTTON, self.Submit, submit_button)
-    self.Bind(wx.EVT_CLOSE, self.OnClose)
-
-    self.Show(True)
-
-
-  def Submit(self, event):
-    self.button = event.GetEventObject()
-    self.button.Disable()
-
-    self.text_control = wx.TextCtrl(
-      self.panel,
-      -1,
-      '',
-      pos=(50, 120),
-      size=(400, 100),
-      style=wx.TE_MULTILINE | wx.TE_CENTRE | wx.TE_READONLY 
-      | wx.TE_NO_VSCROLL | wx.TE_AUTO_URL | wx.TE_RICH2 | wx.BORDER_NONE
+    parser.add_argument("usuario", help="nome de usuário no Filmow")
+    parser.add_argument(
+        "-o",
+        "--saida",
+        type=Path,
+        default=Path.cwd(),
+        help="pasta de saída (padrão: pasta atual)",
     )
-    self.Parse(self.MyFrame)
+    args = parser.parse_args()
+    username = args.usuario.strip().lower()
+
+    try:
+        files = write_csv_files(username, get_movies(username), args.saida)
+    except Exception as error:
+        print(color(f"Erro: {error}", Fore.RED), file=sys.stderr)
+        return 1
+
+    print(color("\nConcluído:", Fore.GREEN))
+    for path in files:
+        print(path.resolve())
+    print("Importe o(s) CSV(s) em https://letterboxd.com/import/")
+    return 0
 
 
-  @delay(1.0)
-  def Parse(self, MyFrame):
-    self.user = self.username.GetValue().lower().strip()
-    if len(self.user) == 0:
-      self.is_running = False
-      self.text_control.ChangeValue('O campo não deve ficar em branco.')
-      self.button.Enable()
-      return
-    else:
-      try:
-        msg = """Seus filmes estão sendo importados no plano de fundo :)\n\n
-          Não feche a janela e aguarde um momento."""
-        
-        self.text_control.ChangeValue(msg)
-        self.is_running = True
-        self.parser = Parser(self.user)
-
-      except Exception:
-        self.text_control.ChangeValue('Usuário {} não encontrado. Tem certeza que digitou certo?'.format(self.user))
-        self.button.Enable()
-        self.is_running = False
-        return
-    
-    self.ChangeMsg()
-    
-  
-  @delay(1.0)
-  def ChangeMsg(self):
-    msg = """Pronto!\n\n Agora clica no link aqui embaixo pra ir pro Letterboxd, 
-      SELECT A FILE e selecione o(s) arquivo(s) de extensão .csv 
-      (tá tudo aqui nessa mesma pasta) criado(s) pelo programa."""
-
-    self.text_control.ChangeValue(msg)
-    self.Bind(wx.EVT_TEXT_URL, self.GoToLetterboxd, self.text_control)
-    self.is_running = False
-
-
-  def GoToLetterboxd(self, event):
-    webbrowser.open('https://letterboxd.com/import/')
-
-
-  def BuyMeACoffee(self, event):
-    webbrowser.open('https://www.buymeacoffee.com/yanari')
-
-
-  def OnClose(self, event):
-    if self.is_running:
-      confirm_exit = wx.MessageDialog(
-        self,
-        'Tem certeza que quer parar o programa?',
-        'Sair',
-        wx.YES_NO | wx.ICON_QUESTION
-      )
-
-      if confirm_exit.ShowModal() == wx.ID_YES:
-        self.Destroy()
-        wx.Window.Destroy(self)
-      else:
-        confirm_exit.Destroy()
-    else:
-      event.Skip()
-    
-
-if __name__ == '__main__':
-  app = wx.App()
-  Frame(None, size=(500, 300))
-  app.MainLoop()
+if __name__ == "__main__":
+    raise SystemExit(main())

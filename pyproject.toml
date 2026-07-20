@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "filmow-to-letterboxd"
+version = "3.0.0"
+description = "Exporta filmes assistidos do Filmow para o Letterboxd"
+requires-python = ">=3.10"
+dependencies = [
+    "beautifulsoup4>=4.12,<5",
+    "cloudscraper>=1.2.71,<2",
+    "colorama",
+]
+
+[project.scripts]
+filmow-to-letterboxd = "filmow_to_letterboxd:main"
+
+[tool.setuptools]
+py-modules = ["filmow_to_letterboxd"]
