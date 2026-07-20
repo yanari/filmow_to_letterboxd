@@ -3,6 +3,7 @@ import csv
 import os
 import re
 import sys
+import time
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -14,6 +15,8 @@ from colorama import Fore, Style, just_fix_windows_console
 BASE_URL = "https://filmow.com"
 CSV_COLUMNS = ("Title", "Directors", "Year", "Rating")
 CSV_LIMIT = 1900
+REQUEST_DELAY = 1.0
+MAX_RETRIES = 5
 USE_COLORS = sys.stdout.isatty() and "NO_COLOR" not in os.environ
 
 
@@ -23,10 +26,29 @@ def color(text, ansi_color):
     return f"{ansi_color}{text}{Style.RESET_ALL}"
 
 
-def get_page(session, url):
-    response = session.get(url, timeout=30)
-    response.raise_for_status()
-    return BeautifulSoup(response.text, "html.parser")
+def get_page(session, url, delay=REQUEST_DELAY):
+    last_response = None
+    for attempt in range(MAX_RETRIES):
+        time.sleep(delay)
+        last_response = session.get(url, timeout=30)
+        if last_response.status_code == 429:
+            retry_after = last_response.headers.get("Retry-After")
+            wait = (
+                float(retry_after)
+                if retry_after and retry_after.isdigit()
+                else min(60, 5 * (2**attempt))
+            )
+            print(
+                color(
+                    f"Rate limit atingido, aguardando {wait:.0f}s...",
+                    Fore.YELLOW,
+                )
+            )
+            time.sleep(wait)
+            continue
+        last_response.raise_for_status()
+        return BeautifulSoup(last_response.text, "html.parser")
+    last_response.raise_for_status()
 
 
 def get_last_page(soup):
@@ -39,8 +61,25 @@ def get_last_page(soup):
     return max(pages, default=1)
 
 
-def get_movie(session, path, rating):
-    soup = get_page(session, urljoin(BASE_URL, path))
+def get_total_movies(session, username, delay=REQUEST_DELAY):
+    profile_url = f"{BASE_URL}/usuario/{username}/"
+    soup = get_page(session, profile_url, delay=delay)
+
+    for selector, pattern in (
+        ('a.movie-list__view-all[href*="/filmes/ja-vi/"] span', r"\((\d+)\)"),
+        ('a.movie-list__view-all[href*="/filmes/ja-vi/"]', r"\((\d+)\)"),
+    ):
+        element = soup.select_one(selector)
+        if not element:
+            continue
+        match = re.search(pattern, element.get_text(strip=True))
+        if match:
+            return int(match.group(1))
+    return None
+
+
+def get_movie(session, path, rating, delay=REQUEST_DELAY):
+    soup = get_page(session, urljoin(BASE_URL, path), delay=delay)
     title_element = soup.select_one(".movie__title")
     if not title_element:
         raise ValueError("título não encontrado")
@@ -68,18 +107,17 @@ def get_movie(session, path, rating):
     }
 
 
-def get_movies(username):
+def get_movies(username, delay=REQUEST_DELAY):
     session = cloudscraper.create_scraper()
     watched_url = f"{BASE_URL}/usuario/{username}/filmes/ja-vi/"
-    first_page = get_page(session, watched_url)
+    first_page = get_page(session, watched_url, delay=delay)
 
     if not first_page.select_one("#movies-list"):
         raise ValueError(f"usuário '{username}' não encontrado ou sem filmes assistidos")
 
-    total_element = first_page.select_one('a.stat[href*="/filmes/ja-vi/"] .number')
-    if not total_element:
+    total_movies = get_total_movies(session, username, delay=delay)
+    if total_movies is None:
         raise ValueError(f"não foi possível obter o total de filmes de '{username}'")
-    total_movies = int(total_element.get_text(strip=True))
 
     print("--------------------------------")
     print(
@@ -99,7 +137,7 @@ def get_movies(username):
         soup = (
             first_page
             if page_number == 1
-            else get_page(session, f"{watched_url}?pagina={page_number}")
+            else get_page(session, f"{watched_url}?pagina={page_number}", delay=delay)
         )
 
         for item in soup.select("#movies-list li.movie_list_item"):
@@ -119,6 +157,7 @@ def get_movies(username):
                     session,
                     link["href"],
                     rating_match.group(1) if rating_match else None,
+                    delay=delay,
                 )
                 movies.append(movie)
                 rating = (
@@ -174,11 +213,19 @@ def main():
         default=Path.cwd(),
         help="pasta de saída (padrão: pasta atual)",
     )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=REQUEST_DELAY,
+        help="segundos de espera entre requisições (padrão: 1.0)",
+    )
     args = parser.parse_args()
     username = args.usuario.strip().lower()
 
     try:
-        files = write_csv_files(username, get_movies(username), args.saida)
+        files = write_csv_files(
+            username, get_movies(username, delay=args.delay), args.saida
+        )
     except Exception as error:
         print(color(f"Erro: {error}", Fore.RED), file=sys.stderr)
         return 1
